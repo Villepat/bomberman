@@ -1,0 +1,24 @@
+/* Styles for the game board
+#game-board {
+    display: grid;
+    grid-template-columns: repeat(n, 1fr);
+    grid-template-rows: repeat(n, 1fr);
+    gap: 1px;
+    background-color: #ddd;
+    padding: 5px;
+  }
+  
+  /* Styles for the individual cells */
+  /* .cell {
+    background-color: #fff;
+    border: 1px solid #aaa;
+    display: flex;
+    justify-content: center;
+    height: 50px;
+    width: 50px;
+  }
+   */
+
+.edge {
+    color: black;
+}
