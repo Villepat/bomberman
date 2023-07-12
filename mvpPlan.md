@@ -4,7 +4,8 @@ Here we want to have a list of questions & answers related to the project planni
 ## Gameplay Mechanics:
 
 How will player movement be handled? Is it tile-based or continuous?<br>
-> Continuous movement on a tile based map<br>            
+> Continuous movement on a tile based map<br>
+  
 How will bomb placement and detonation work?<br>
 How will the power-ups be implemented? What is the duration of each power-up?<br>
 How will the game handle a player's death and respawn?<br>
