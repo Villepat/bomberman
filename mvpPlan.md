@@ -3,16 +3,28 @@ Here we want to have a list of questions & answers related to the project planni
 
 ## Gameplay Mechanics:
 
+What are the movement keys?
+> WASD / arrow keys for moving around, space to deploy a bomb. These should be shown in the how to play section in the main screen.
+
 How will player movement be handled? Is it tile-based or continuous?<br>
 > Continuous movement on a tile based map<br>
   
 How will bomb placement and detonation work?<br>
 How will the power-ups be implemented? What is the duration of each power-up?<br>
+> Power ups will be found under destroyable blocks and will last untill you perish
+
 How will the game handle a player's death and respawn?<br>
+> When a player dies, they are presented with a text "You have died - you will be directed back to the lobby when the game is finished". Then the player sprite will be removed from the map. 
+
 How should the collision detection work between players, bombs, and the environment (blocks and walls)?<br>
+> You can not walk through players, bombs or any walls. On contact with a power up player is automatically upgraded with it.
+
 How will the bomb explosion mechanics be implemented? What happens if a bomb's explosion reaches another bomb?<br>
+> If a bomb is in the way of an explosion, it will detonate immediatly. An explosion will also be able to destroy a power up.
+
 How can players pick up power-ups? Is it automatic or does the player need to perform an action?<br>
-What will happen when all the lives of a player are gone? Is there a game over screen?<br>
+> Walk over & automatic assignment
+
 
 ## Player and Game State Management:
 
@@ -24,9 +36,18 @@ How will the game handle players who want to join a game that's already in progr
 
 ## Map Design:
 
-What algorithm will you use for random block placement to ensure a playable map?<br>
-What kind of map variety would you like to offer?<br>
 What size will the game map be, and will it vary between games or remain constant?<br>
+> 19x19 in total with the outermost borders being undestructable, leaving the players with a 17x17(289) grid to operate in.<br>
+
+
+What algorithm will you use for random block placement to ensure a playable map?<br>
+> In the grid you have to make sure that you do not fill in the squares next to the spawn area, leaving you with 17x17-8(281) squares to fill in.<br>
+>There will also be indestructable blocks in the 17x17 grid, 8x8(64) them to be exact, leaving you with 281-64(217) blocks in total to be filled in with autogeneration.<br>
+>We will autogenerate bricks in to the remaining squares one by one with a 50% chance.
+>20% of these bricks will be turned in to a power up when destroyed.
+
+
+
 How will you ensure that randomly placed blocks don't block players completely?<br>
 
 ## Networking:
