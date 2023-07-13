@@ -2,12 +2,12 @@
 
 // Function to build the base grid for the game board
 function buildBaseGrid(n) {
-    // Generate CSS for grid template
-    const gridTemplate = `repeat(${n}, 0fr)`;
+  // Generate CSS for grid template
+  const gridTemplate = `repeat(${n}, 0fr)`;
 
-    // Create style element
-    const style = document.createElement('style');
-    style.textContent = `
+  // Create style element
+  const style = document.createElement("style");
+  style.textContent = `
         #game-board {
             display: grid;
             grid-template-columns: ${gridTemplate};
@@ -33,41 +33,53 @@ function buildBaseGrid(n) {
         .block {
             background-position: center;
             background-size: cover;
-            background-image: url("./images/brick.png");
+            background-image: url("/static/images/brick.png");
         }
     `;
 
-    // Append style element to document head
-    document.head.appendChild(style);
+  // Append style element to document head
+  document.head.appendChild(style);
 
-    // Generate grid cells
-    for (let y = n - 1; y >= 0; y--) {
-        for (let x = 0; x < n; x++) {
-        let cell = document.createElement("div");
-        if (y === 0 || y === n - 1 || x === 0 || x === n - 1) {
-            cell.classList.add("cell", "edge");
-        } else if (x % 2 === 0 && y % 2 === 0) {
-            cell.classList.add("cell", "brick");
-        } else {
-            cell.classList.add("cell");
-        }
+  // Generate grid cells
+  for (let y = n - 1; y >= 0; y--) {
+    for (let x = 0; x < n; x++) {
+      let cell = document.createElement("div");
+      if (y === 0 || y === n - 1 || x === 0 || x === n - 1) {
+        cell.classList.add("cell", "edge");
+      } else if (x % 2 === 0 && y % 2 === 0) {
+        cell.classList.add("cell", "brick");
+      } else {
+        cell.classList.add("cell");
+      }
 
-        if (x === 1 && y === 1 || x === n - 2 && y === n - 2 || x === 1 && y === n - 2 || x === n - 2 && y === 1 || x === 2 && y === 1 || x === 1 && y === 2 || x === n - 3 && y === n - 2 || x === n - 2 && y === n - 3 || x === 2 && y === n - 2 || x === 1 && y === n - 3 || x === n - 3 && y === 1 || x === n - 2 && y === 2) {
-            cell.classList.add("safe-zone");
-        }
+      if (
+        (x === 1 && y === 1) ||
+        (x === n - 2 && y === n - 2) ||
+        (x === 1 && y === n - 2) ||
+        (x === n - 2 && y === 1) ||
+        (x === 2 && y === 1) ||
+        (x === 1 && y === 2) ||
+        (x === n - 3 && y === n - 2) ||
+        (x === n - 2 && y === n - 3) ||
+        (x === 2 && y === n - 2) ||
+        (x === 1 && y === n - 3) ||
+        (x === n - 3 && y === 1) ||
+        (x === n - 2 && y === 2)
+      ) {
+        cell.classList.add("safe-zone");
+      }
 
-        if (cell.classList == "cell") {
-            // give a 50 percent chance of the cell being a breakable brick
-            if (Math.random() < 0.5) {
-                cell.classList.add("block");
-            }
+      if (cell.classList == "cell") {
+        // give a 50 percent chance of the cell being a breakable brick
+        if (Math.random() < 0.5) {
+          cell.classList.add("block");
         }
-            
-        cell.setAttribute("id", `cell-${x}-${y}`);
-        document.getElementById("game-board").appendChild(cell);
-        }
+      }
+
+      cell.setAttribute("id", `cell-${x}-${y}`);
+      document.getElementById("game-board").appendChild(cell);
     }
+  }
 }
-
 
 export default buildBaseGrid;
