@@ -1,7 +1,20 @@
 package main
 
-import "log"
+import (
+	"bomberman-dom/server"
+	"log"
+	"net/http"
+)
 
 func main() {
-	log.Println("hello world")
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+
+	fs := http.FileServer(http.Dir("../frontend"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
+	// Register the server.Home handler for the root path
+	http.HandleFunc("/", server.Home)
+
+	// Start a server on port 80
+	log.Fatal(http.ListenAndServe(":80", nil))
 }
