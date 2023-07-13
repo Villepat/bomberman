@@ -1,8 +1,9 @@
 // File for building the base grid for the game board
 
 // Function to build the base grid for the game board
-function buildBaseGrid(n) {
+function buildBaseGrid(gameBoard) {
   // Generate CSS for grid template
+  const n = gameBoard.length;
   const gridTemplate = `repeat(${n}, 0fr)`;
 
   // Create style element
@@ -42,40 +43,25 @@ function buildBaseGrid(n) {
 
   window.webSocketConnection.send("Hello Server!");
 
-  // Generate grid cells
+  // Generate grid cells based on the gameBoard data from the server
   for (let y = n - 1; y >= 0; y--) {
     for (let x = 0; x < n; x++) {
       let cell = document.createElement("div");
-      if (y === 0 || y === n - 1 || x === 0 || x === n - 1) {
-        cell.classList.add("cell", "edge");
-      } else if (x % 2 === 0 && y % 2 === 0) {
-        cell.classList.add("cell", "brick");
-      } else {
-        cell.classList.add("cell");
-      }
 
-      if (
-        (x === 1 && y === 1) ||
-        (x === n - 2 && y === n - 2) ||
-        (x === 1 && y === n - 2) ||
-        (x === n - 2 && y === 1) ||
-        (x === 2 && y === 1) ||
-        (x === 1 && y === 2) ||
-        (x === n - 3 && y === n - 2) ||
-        (x === n - 2 && y === n - 3) ||
-        (x === 2 && y === n - 2) ||
-        (x === 1 && y === n - 3) ||
-        (x === n - 3 && y === 1) ||
-        (x === n - 2 && y === 2)
-      ) {
-        cell.classList.add("safe-zone");
-      }
-
-      if (cell.classList == "cell") {
-        // give a 50 percent chance of the cell being a breakable brick
-        if (Math.random() < 0.5) {
-          cell.classList.add("block");
-        }
+      // Set cell class based on gameBoard value
+      switch (gameBoard[y][x]) {
+        case 0:
+          cell.classList.add("cell");
+          break;
+        case 1:
+          cell.classList.add("cell", "block");
+          break;
+        case 2:
+          cell.classList.add("cell", "brick");
+          break;
+        case 3:
+          cell.classList.add("cell", "edge");
+          break;
       }
 
       cell.setAttribute("id", `cell-${x}-${y}`);
@@ -83,5 +69,4 @@ function buildBaseGrid(n) {
     }
   }
 }
-
 export default buildBaseGrid;

@@ -1,12 +1,17 @@
 package server
 
 import (
-	"encoding/json"
+	"bomberman-dom/game_functions"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/websocket"
 )
+
+var gameBoard []byte
+var isGameBoardGenerated bool
+var numConnections = 0
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -57,6 +62,20 @@ type NotificationResponse struct {
 
 // function to read the data from the websocket connection
 func reader(conn *websocket.Conn) {
+	defer func() {
+		if err := conn.Close(); err != nil {
+			log.Printf("Failed to close connection: %v", err)
+		}
+		delete(Connections, conn)
+
+		// Decrement the number of connections.
+		numConnections--
+
+		// If there are no more connections, reset the game board.
+		if numConnections == 0 {
+			isGameBoardGenerated = false
+		}
+	}()
 
 	// Set up a close handler for the WebSocket connection
 	conn.SetCloseHandler(func(code int, text string) error {
@@ -77,33 +96,50 @@ func reader(conn *websocket.Conn) {
 		log.Println("message received: ")
 		log.Println("messageType: ", messageType)
 		log.Println(string(p))
-		var message Message
-		err = json.Unmarshal(p, &message)
-		if err != nil {
-			log.Println(err)
-			return
-		}
-
 	}
 }
 
 // function to set up the websocket endpoint
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
+
+	if numConnections >= 4 {
+		log.Println("Connection attempt rejected. Maximum number of connections reached.")
+		w.WriteHeader(http.StatusServiceUnavailable) // Or another appropriate status code
+		return
+	}
+
 	ws, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 	}
 
 	userconn := &UserConnection{
-		UserID:     1,
-		Username:   "haha",
+		UserID:     numConnections + 1,
+		Username:   "player " + strconv.Itoa(numConnections+1),
 		Connection: ws,
 	}
 	// Add the connection to the list of active connections.
 	Connections[ws] = userconn
+	numConnections++ // Increment the number of connections.
 	log.Printf("User %s with ID %d successfully connected", userconn.Username, userconn.UserID)
 	log.Println("connections: ", Connections)
+
+	if !isGameBoardGenerated {
+		_, gameBoard, err = game_functions.GenerateGameBoard()
+		if err != nil {
+			log.Println(err)
+		} else {
+			isGameBoardGenerated = true
+		}
+	}
+
+	// Send the game board to the client
+	err = ws.WriteMessage(1, gameBoard)
+	if err != nil {
+		log.Println(err)
+	}
+
 	go reader(ws)
 }
 
