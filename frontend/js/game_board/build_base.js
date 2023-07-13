@@ -40,6 +40,8 @@ function buildBaseGrid(n) {
   // Append style element to document head
   document.head.appendChild(style);
 
+  window.webSocketConnection.send("Hello Server!");
+
   // Generate grid cells
   for (let y = n - 1; y >= 0; y--) {
     for (let x = 0; x < n; x++) {
