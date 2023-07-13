@@ -15,6 +15,9 @@ func main() {
 	// Register the server.Home handler for the root path
 	http.HandleFunc("/", server.Home)
 
+	// setup websocket route
+	server.SetupRoutes()
+
 	// Start a server on port 80
 	log.Fatal(http.ListenAndServe(":80", nil))
 }
