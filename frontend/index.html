@@ -15,9 +15,20 @@
     <div id="hud-container">
       <div id="hud">
         <div id="player1-name" class="player-info">
+          <div class="player-profile">
+            <img
+              src="/static/images/playerHead2.png"
+              alt="Player 1 Profile Picture"
+            />
+          </div>
           <div class="player-name">Player 1</div>
-          <div id="player1-lives" class="player-lives">3</div>
+          <div id="player1-lives" class="player-lives">
+            <img src="/static/images/vittu.png" alt="life" />
+            <img src="/static/images/vittu.png" alt="life" />
+            <img src="/static/images/vittu.png" alt="life" />
+          </div>
         </div>
+        
         <div id="player2-name" class="player-info">
           <div class="player-name">Player 2</div>
           <div id="player2-lives" class="player-lives">3</div>
@@ -32,6 +43,7 @@
         </div>
       </div>
     </div>
+
     <button id="wsButton">Send WebSocket Message</button>
   </body>
 </html>

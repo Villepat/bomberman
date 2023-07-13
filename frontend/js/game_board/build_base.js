@@ -36,6 +36,55 @@ function buildBaseGrid(gameBoard) {
             background-size: cover;
             background-image: url("/static/images/brick.png");
         }
+        #hud-container {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+          
+        }
+        #hud {
+          display: flex;
+          align-items: center;
+          justify-content: space-around;
+          margin-top: 20px;
+          border: 1px solid black;
+          width: 80%;
+        }
+        
+        .player-profile img {
+
+          width: 50px; /* Adjust the width as needed */
+          height: 50px; /* Adjust the height as needed */
+         
+        }
+        
+
+        .player-info {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          text-align: center;
+          margin-bottom: 10px;
+        }
+        
+        .player-name {
+          font-weight: bold;
+          font-size: 16px;
+        }
+        
+        .player-lives {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          gap: 5px; /* Adjust the gap as needed */
+        }
+        .player-lives img {
+          max-width: 30px; /* Set the maximum width for the images */
+          max-height: 30px; /* Set the maximum height for the images */
+        }
+
     `;
 
   // Append style element to document head
