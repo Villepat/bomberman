@@ -10,6 +10,7 @@ func GenerateGameBoard() ([19][19]int, []byte, error) {
 	var gameBoard [19][19]int
 	n := len(gameBoard)
 
+	// generate game board
 	for i := 0; i < n; i++ {
 		for j := 0; j < n; j++ {
 			switch {
@@ -25,6 +26,13 @@ func GenerateGameBoard() ([19][19]int, []byte, error) {
 		}
 	}
 
+	// place players in their starting positions
+	for i := 1; i < 5; i++ {
+		startingPosition := GetStartingPosition(i)
+		gameBoard[startingPosition[0]][startingPosition[1]] = i + 3
+	}
+
+	// convert gameBoard to json
 	jsonmap, err := json.Marshal(gameBoard)
 	if err != nil {
 		log.Println(err)
@@ -54,4 +62,20 @@ func isSafeZone(i, j, n int) bool {
 		}
 	}
 	return false
+}
+
+// identify the nth players starting position
+func GetStartingPosition(n int) [2]int {
+	switch n {
+	case 1:
+		return [2]int{1, 1}
+	case 2:
+		return [2]int{17, 17}
+	case 3:
+		return [2]int{1, 17}
+	case 4:
+		return [2]int{17, 1}
+	default:
+		return [2]int{0, 0}
+	}
 }

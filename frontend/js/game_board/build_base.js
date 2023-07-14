@@ -19,22 +19,25 @@ function buildBaseGrid(gameBoard) {
         .cell {
             height: 50px;
             width: 50px;
-            background-color: green;
+            background-image: url("/static/images/grass.png");
+            background-size: cover;
             border: 1px solid black;
         }
         .edge {
-            background-color: black;
+            background-image: url("/static/images/backgroundbrick1.png");
+            background-size: cover;
         }
         .brick {
-            background-color: black;
+            background-image: url("/static/images/backgroundbrick1.png");
         }
         .safe-zone {
-            background-color: green;
+            background-image: url("/static/images/grass.png");
+            background-size: cover;
         }
         .block {
             background-position: center;
             background-size: cover;
-            background-image: url("/static/images/brick.png");
+            background-image: url("/static/images/brick2.png");
         }
     `;
 
@@ -62,6 +65,8 @@ function buildBaseGrid(gameBoard) {
         case 3:
           cell.classList.add("cell", "edge");
           break;
+        default:
+            cell.classList.add("cell");
       }
 
       cell.setAttribute("id", `cell-${x}-${y}`);
