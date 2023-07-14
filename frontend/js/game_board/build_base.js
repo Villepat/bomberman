@@ -27,14 +27,14 @@ function buildBaseGrid(gameBoard) {
             background-image: url("/static/images/backgroundbrick1.png");
             background-size: cover;
         }
-        .brick {
+        .steel {
             background-image: url("/static/images/backgroundbrick1.png");
         }
         .safe-zone {
             background-image: url("/static/images/grass.png");
             background-size: cover;
         }
-        .block {
+        .brick {
             background-position: center;
             background-size: cover;
             background-image: url("/static/images/brick2.png");
@@ -57,10 +57,10 @@ function buildBaseGrid(gameBoard) {
           cell.classList.add("cell");
           break;
         case 1:
-          cell.classList.add("cell", "block");
+          cell.classList.add("cell", "brick");
           break;
         case 2:
-          cell.classList.add("cell", "brick");
+          cell.classList.add("cell", "steel");
           break;
         case 3:
           cell.classList.add("cell", "edge");

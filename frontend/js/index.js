@@ -1,4 +1,5 @@
 import buildBaseGrid from "./game_board/build_base.js";
+import { destroyBrick } from "./physics/explosion.js";
 
 window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
 
@@ -30,3 +31,13 @@ wsButton.addEventListener("click", function () {
     console.log("Can't send message, WebSocket connection is not open");
   }
 });
+
+//// code for testing the destroyBrick function
+// add an onCLick event listener to the board
+// document.getElementById("game-board").addEventListener("click", function (event) {
+//     console.log(event.target.id);
+//     let gameBoard = document.getElementById("game-board").gameBoard;
+//     let x = event.target.id.split("-")[1];
+//     let y = event.target.id.split("-")[2];
+//     destroyBrick(gameBoard, x, y);
+// });
