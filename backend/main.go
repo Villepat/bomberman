@@ -7,6 +7,7 @@ import (
 )
 
 func main() {
+	log.Println("Starting server...")
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 
 	fs := http.FileServer(http.Dir("../frontend"))

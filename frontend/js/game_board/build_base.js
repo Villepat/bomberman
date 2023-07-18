@@ -39,6 +39,23 @@ function buildBaseGrid(gameBoard) {
             background-size: cover;
             background-image: url("/static/images/brick2.png");
         }
+        .player-1 {
+            background-image: url("/static/images/player1.png");
+            background-size: cover;
+        }
+        .player-2 {
+            background-image: url("/static/images/player2.png");
+            background-size: cover;
+        }
+        .player-3 {
+            background-image: url("/static/images/player3.png");
+            background-size: cover;
+        }
+        .player-4 {
+            background-image: url("/static/images/player4.png");
+            background-size: cover;
+            z-index: 1;
+        }
     `;
 
   // Append style element to document head
@@ -66,7 +83,9 @@ function buildBaseGrid(gameBoard) {
           cell.classList.add("cell", "edge");
           break;
         default:
-            cell.classList.add("cell");
+          // place the player
+          cell.classList.add("cell", `starting-cell-${gameBoard[y][x]-3}`, `player-${gameBoard[y][x]-3}`);
+          break;
       }
 
       cell.setAttribute("id", `cell-${x}-${y}`);
@@ -74,4 +93,5 @@ function buildBaseGrid(gameBoard) {
     }
   }
 }
-export default buildBaseGrid;
+
+export { buildBaseGrid };
