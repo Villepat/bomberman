@@ -34,10 +34,12 @@ if (window.location.pathname === "/") {
 let startButton = document.getElementById("start-button");
 if (startButton) {
   // add an onClick event listener to the start button
-  startButton.addEventListener("click", function () {
+  startButton.addEventListener("click", async function () {
     //window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
-    initializeGame();
-    movePlayer();
+    await initializeGame();
+    setTimeout(function () {
+      movePlayer();
+    }, 1000);
   });
 }
 

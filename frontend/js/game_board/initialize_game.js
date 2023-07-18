@@ -16,7 +16,7 @@
 import { buildBaseGrid } from "./build_base.js";
 
 
-function initializeGame() {
+async function initializeGame() {
     // remove the start button from the DOM
     let startButton = document.getElementById("start-button");
     startButton.remove();
@@ -41,9 +41,9 @@ function initializeGame() {
         console.log("WebSocket is open now.");
     };
     // receive a message from the server
-    window.webSocketConnection.onmessage = function (event) {
+    window.webSocketConnection.onmessage = async function (event) {
         let gameBoard = JSON.parse(event.data);
-        buildBaseGrid(gameBoard);
+        await buildBaseGrid(gameBoard);
     };
 }
 

@@ -1,7 +1,7 @@
 // File for building the base grid for the game board
 
 // Function to build the base grid for the game board
-function buildBaseGrid(gameBoard) {
+async function buildBaseGrid(gameBoard) {
   // Generate CSS for grid template
   const n = gameBoard.length;
   const gridTemplate = `repeat(${n}, 0fr)`;

@@ -38,18 +38,19 @@ export function movePlayer(player) {
         };
         placeBomb();
         break;
-      default:
-        // if other key pressed
-        break;
-    }
+        default:
+          // if other key pressed
+          break;
+        }
+        // Check if the WebSocket is still open before sending a message
+        if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+          // Send the message through the WebSocket connection
+          window.webSocketConnection.send(JSON.stringify(message));
+        } else {
+          console.log("Can't send message, WebSocket connection is not open");
+        }
+  });
 
-    // Check if the WebSocket is still open before sending a message
-    if (window.webSocketConnection.readyState === WebSocket.OPEN) {
-      // Send the message through the WebSocket connection
-      window.webSocketConnection.send(JSON.stringify(message));
-    } else {
-      console.log("Can't send message, WebSocket connection is not open");
-    }
 
     window.webSocketConnection.onmessage = function (event) {
       // get the updated player position
@@ -58,7 +59,6 @@ export function movePlayer(player) {
       // replace the player position
       updatePlayerPosition(player);
     };
-  });
 }
 
 // hardcoded for player 1
