@@ -254,103 +254,126 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 
 // A function that places a bomb on the game board
 func PlaceBomb(gameGrid *[19][19]int, playerID int) {
-	gridMutex.Lock()
-	log.Println("Game grid: ", gameGrid)
-	//Get the player from the map
-	player := game_functions.Players[playerID]
-	//Check if the player has bombs left
-	if player.Bombs == 0 {
-		log.Println("Player has no bombs left")
-		return
-	}
-	//Check if the player is on a bomb
-	if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 69 {
-		log.Println("Player is on a bomb")
-		return
-	}
-	//Check the player's bomb range
-	bombRange := player.BombRange
-	log.Println("Bomb range: ", bombRange)
+    gridMutex.Lock()
+    log.Println("Game grid: ", gameGrid)
+    // Get the player from the map
+    player := game_functions.Players[playerID]
+    // Check if the player has bombs left
+    if player.Bombs == 0 {
+        log.Println("Player has no bombs left")
+        return
+    }
+    // Check if the player is on a bomb
+    if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 69 {
+        log.Println("Player is on a bomb")
+        return
+    }
+    // Check the player's bomb range
+    bombRange := player.BombRange
+    log.Println("Bomb range: ", bombRange)
 
-	//Place a bomb on the game board
-	gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 69
-	log.Println("Bomb placed at: ", player.GridPosition)
-	//Update the player in the map
-	player.Bombs--
-	game_functions.Players[playerID] = player
-	
+    // Place a bomb on the game board
+    gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 69
+    log.Println("Bomb placed at: ", player.GridPosition)
+    // Update the player in the map
+    player.Bombs--
+    game_functions.Players[playerID] = player
 
-	log.Println("Game grid after bomb placement: ", gameGrid)
+    log.Println("Game grid after bomb placement: ", gameGrid)
 
-	//Start a timer for the bomb explosion
-	go func() {
-		timer := time.NewTimer(time.Duration(2) * time.Second)
-		<-timer.C
-		HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange)
-	}()
+   // Prepare bomb message
+bombMsg := Msg{
+    Type: "bomb",
+    Data: struct {
+        GridPosition []int
+    }{GridPosition: []int{player.GridPosition[0], player.GridPosition[1]}},
+}
 
-	defer gridMutex.Unlock()
+    // Send the bomb message to all of the clients
+    for _, conn := range Connections {
+        err := conn.Connection.WriteJSON(bombMsg)
+        if err != nil {
+            log.Println(err)
+        }
+    }
 
-	playerMsg := Msg{
-		Type: "player",
-		Data: player,
-	}
+    // Start a timer for the bomb explosion
+    go func() {
+        timer := time.NewTimer(time.Duration(2) * time.Second)
+        <-timer.C
+        HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange)
+    }()
 
+    defer gridMutex.Unlock()
 
-	//send the updated player to all of the clients
-	for _, conn := range Connections {
-		err := conn.Connection.WriteJSON(playerMsg)
-		if err != nil {
-			log.Println(err)
-		}
-	}
+    playerMsg := Msg{
+        Type: "player",
+        Data: player,
+    }
 
+    // Send the updated player to all of the clients
+    for _, conn := range Connections {
+        err := conn.Connection.WriteJSON(playerMsg)
+        if err != nil {
+            log.Println(err)
+        }
+    }
 
-	gameGridMsg := Msg{
-		Type: "gameGrid",
-		Data: gameGrid,
-	}
+    gameGridMsg := Msg{
+        Type: "gameGrid",
+        Data: gameGrid,
+    }
 
-	//send the updated game board to all of the clients
-	for _, conn := range Connections {
-		err := conn.Connection.WriteJSON(gameGridMsg)
-		if err != nil {
-			log.Println(err)
-		}
-	}
+    // Send the updated game board to all of the clients
+    for _, conn := range Connections {
+        err := conn.Connection.WriteJSON(gameGridMsg)
+        if err != nil {
+            log.Println(err)
+        }
+    }
 }
 
 func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	gridMutex.Lock()
 	log.Println("---------------------BOOOOOOOOOOOOOOOOOOOOM---------------------")
-	// Handle the bomb explosion here
-	 // Clean the bomb from gameGrid
-	 gameGrid[x][y] = 0
-    
-	 // Handle the bomb explosion here. For now, let's just destroy the destroyable blocks (1 -> 0).
-	 for i := -bombRange; i <= bombRange; i++ {
-		 if x+i >= 0 && x+i < 19 && gameGrid[x+i][y] == 1 { 
-			 gameGrid[x+i][y] = 0
-		 }
-		 if y+i >= 0 && y+i < 19 && gameGrid[x][y+i] == 1 { 
-			 gameGrid[x][y+i] = 0
-		 }
-	 }
-	 defer gridMutex.Unlock()
- 
-	 // Log the state of game grid after explosion
-	 log.Println("Game grid after explosion: ", gameGrid)
- 
-	 gameGridMsg := Msg{
-		 Type: "gameGrid",
-		 Data: gameGrid,
-	 }
- 
-	 //send the updated game board to all of the clients
-	 for _, conn := range Connections {
-		 err := conn.Connection.WriteJSON(gameGridMsg)
-		 if err != nil {
-			 log.Println(err)
-		 }
-	 }
+	// Clean the bomb from gameGrid
+	gameGrid[x][y] = 0
+
+	// The explosion's affected area is the bomb range in each direction.
+	var affectedCells [][]int
+	// Handle the bomb explosion here. For now, let's just destroy the destroyable blocks (1 -> 0).
+	for i := -bombRange; i <= bombRange; i++ {
+		if x+i >= 0 && x+i < 19 && gameGrid[y][x+i] == 1 {
+			gameGrid[y][x+i] = 0
+			affectedCells = append(affectedCells, []int{x + i, y})
+		}
+		if y+i >= 0 && y+i < 19 && gameGrid[y+i][x] == 1 {
+			gameGrid[y+i][x] = 0
+			affectedCells = append(affectedCells, []int{x, y + i})
+		}
+	}
+	gridMutex.Unlock()
+
+	// Log the state of game grid after explosion
+	log.Println("Game grid after explosion: ", gameGrid)
+	log.Println("Affected cells: ", affectedCells)
+
+	explosionMsg := Msg{
+		Type: "explosion",
+		Data: struct {
+			GameGrid      *[19][19]int
+			AffectedCells [][]int
+		}{
+			GameGrid:      gameGrid,
+			AffectedCells: affectedCells,
+		},
+	}
+
+	//send the updated game board to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(explosionMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }

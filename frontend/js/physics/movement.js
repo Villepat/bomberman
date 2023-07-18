@@ -58,8 +58,13 @@ export function movePlayer(player) {
       console.log("gameGrid received");
     } else if (message.type === "player") {
       console.log("player received");
-      // replace the player position
       updatePlayerPosition(message.data);
+    } else if (message.type === "bomb") {
+      console.log("bomb received");
+      updateBombPlacement(message.data);
+    } else if (message.type === "explosion") {
+      console.log("explosion received");
+      updateExplosion(message.data);
     }
   };
 }
@@ -87,4 +92,31 @@ function updatePlayerPosition(player) {
   // replace the player position
   newPlayerPosition.classList.remove("cell");
   newPlayerPosition.classList.add(`player-${player.PlayerID}`);
+}
+
+function updateBombPlacement(bomb) {
+  console.log("bomb: ", bomb);
+  let bombPosition = document.getElementById(
+    `cell-${bomb.GridPosition[0]}-${bomb.GridPosition[1]}`
+  );
+
+  bombPosition.classList.remove("cell");
+  bombPosition.classList.add("bomb");
+}
+
+function updateExplosion(explosion) {
+  console.log("explosion: ", explosion);
+  explosion.AffectedCells.forEach((cell) => {
+    let explodedCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
+
+    if (explodedCell.classList.contains("brick")) {
+      explodedCell.classList.remove("brick");
+    }
+    explodedCell.classList.add("explosion");
+    // You may want to remove "explosion" class after some time to make it look like an animation
+    setTimeout(() => {
+      explodedCell.classList.remove("explosion");
+      explodedCell.classList.add("cell");
+    }, 500);
+  });
 }
