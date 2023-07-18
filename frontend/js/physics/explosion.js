@@ -1,11 +1,10 @@
 // File for functions handeling the explosives
 
-export function destroyBrick(gameBoard, x, y) {
+export function destroyBrick(x, y) {
     // Get the cell
     const cell = document.getElementById(`cell-${x}-${y}`);
     // Check if the cell is a brick
     if (cell.classList.contains("brick")) {
-        console.log("This is a brick")
         // Remove the brick
         cell.type = "empty";
         cell.player = null;
