@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"strconv"
+	"sync"
+	"time"
 
 	"github.com/gorilla/websocket"
 )
@@ -14,6 +16,7 @@ var gameBoard []byte
 var gameGrid [19][19]int
 var isGameBoardGenerated bool
 var numConnections = 0
+var gridMutex = &sync.Mutex{}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -251,6 +254,7 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 
 // A function that places a bomb on the game board
 func PlaceBomb(gameGrid *[19][19]int, playerID int) {
+	gridMutex.Lock()
 	log.Println("Game grid: ", gameGrid)
 	//Get the player from the map
 	player := game_functions.Players[playerID]
@@ -278,6 +282,15 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 
 	log.Println("Game grid after bomb placement: ", gameGrid)
 
+	//Start a timer for the bomb explosion
+	go func() {
+		timer := time.NewTimer(time.Duration(2) * time.Second)
+		<-timer.C
+		HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange)
+	}()
+
+	defer gridMutex.Unlock()
+
 	playerMsg := Msg{
 		Type: "player",
 		Data: player,
@@ -292,6 +305,7 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 		}
 	}
 
+
 	gameGridMsg := Msg{
 		Type: "gameGrid",
 		Data: gameGrid,
@@ -304,4 +318,39 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 			log.Println(err)
 		}
 	}
+}
+
+func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
+	gridMutex.Lock()
+	log.Println("---------------------BOOOOOOOOOOOOOOOOOOOOM---------------------")
+	// Handle the bomb explosion here
+	 // Clean the bomb from gameGrid
+	 gameGrid[x][y] = 0
+    
+	 // Handle the bomb explosion here. For now, let's just destroy the destroyable blocks (1 -> 0).
+	 for i := -bombRange; i <= bombRange; i++ {
+		 if x+i >= 0 && x+i < 19 && gameGrid[x+i][y] == 1 { 
+			 gameGrid[x+i][y] = 0
+		 }
+		 if y+i >= 0 && y+i < 19 && gameGrid[x][y+i] == 1 { 
+			 gameGrid[x][y+i] = 0
+		 }
+	 }
+	 defer gridMutex.Unlock()
+ 
+	 // Log the state of game grid after explosion
+	 log.Println("Game grid after explosion: ", gameGrid)
+ 
+	 gameGridMsg := Msg{
+		 Type: "gameGrid",
+		 Data: gameGrid,
+	 }
+ 
+	 //send the updated game board to all of the clients
+	 for _, conn := range Connections {
+		 err := conn.Connection.WriteJSON(gameGridMsg)
+		 if err != nil {
+			 log.Println(err)
+		 }
+	 }
 }
