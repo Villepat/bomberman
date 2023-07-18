@@ -1,6 +1,6 @@
 // File for functions that has to do with moving a player
 export function movePlayer(player) {
-  console.log("movePlayer function called")
+  console.log("movePlayer function called");
   let message;
 
   document.addEventListener("keydown", function (event) {
@@ -36,35 +36,40 @@ export function movePlayer(player) {
           command: "place-bomb",
           // Add other properties to the message as needed
         };
-        placeBomb();
         break;
-        default:
-          // if other key pressed
-          break;
-        }
-        // Check if the WebSocket is still open before sending a message
-        if (window.webSocketConnection.readyState === WebSocket.OPEN) {
-          // Send the message through the WebSocket connection
-          window.webSocketConnection.send(JSON.stringify(message));
-        } else {
-          console.log("Can't send message, WebSocket connection is not open");
-        }
+      default:
+        // if other key pressed
+        break;
+    }
+    // Check if the WebSocket is still open before sending a message
+    if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+      // Send the message through the WebSocket connection
+      window.webSocketConnection.send(JSON.stringify(message));
+    } else {
+      console.log("Can't send message, WebSocket connection is not open");
+    }
   });
 
+  window.webSocketConnection.onmessage = function (event) {
+    let message = JSON.parse(event.data);
+    console.log("message: ", message);
 
-    window.webSocketConnection.onmessage = function (event) {
-      // get the updated player position
-      let player = JSON.parse(event.data);
-      console.log("player: ", player);
+    if (message.type === "gameGrid") {
+      console.log("gameGrid received");
+    } else if (message.type === "player") {
+      console.log("player received");
       // replace the player position
-      updatePlayerPosition(player);
-    };
+      updatePlayerPosition(message.data);
+    }
+  };
 }
 
 // hardcoded for player 1
 function updatePlayerPosition(player) {
   console.log("player: ", player);
-  let playerPositions = document.getElementsByClassName(`player-${player.PlayerID}`);
+  let playerPositions = document.getElementsByClassName(
+    `player-${player.PlayerID}`
+  );
 
   // Assuming there is only one element with "player-1" class
   if (playerPositions.length > 0) {

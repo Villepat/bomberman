@@ -35,27 +35,11 @@ type Message struct {
 	Timestamp string
 }
 
-type Notification struct {
-	Type      string `json:"Type"`
-	Groupid   int    `json:"Groupid"`
-	UserID    int    `json:"UserID"`
-	SenderID  int    `json:"Sender"`
-	Message   string `json:"Message"`
-	Command   string `json:"Command"`
-	Timestamp string `json:"Date"`
+type Msg struct {
+	Type string 	`json:"type"`
+	Data interface{} `json:"data"`
 }
 
-type NotificationResponse struct {
-	NotifId  int    `json:"NotifId"`
-	UserId   int    `json:"UserId"`
-	SenderId int    `json:"SenderId"`
-	Groupid  int    `json:"Groupid"`
-	Content  string `json:"Content"`
-	Read     bool   `json:"Read"`
-	Type     string `json:"Type"`
-	Date     string `json:"Date"`
-	Command  string `json:"Command"`
-}
 
 // function to read the data from the websocket connection
 func reader(conn *websocket.Conn) {
@@ -106,9 +90,11 @@ func reader(conn *websocket.Conn) {
 			log.Println("message command: ", msg.Command)
 			log.Println("message text: ", msg.Direction)
 			if msg.Command == "move" {
+				log.Println("move command received")
 				MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
 			} else if msg.Command == "place-bomb" {
-				PlaceBomb(gameGrid, Connections[conn].UserID)
+				log.Println("place-bomb command received")	
+				PlaceBomb(&gameGrid, Connections[conn].UserID)
 			}
 		}
 	}
@@ -152,7 +138,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		Name:      userconn.Username,
 		Speed:     1,
 		Lives:     3,
-		Bombs:     1,
+		Bombs:     100,
 		BombRange: 1,
 		Direction: "down",
 	}
@@ -249,9 +235,14 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 	//Update the player in the map
 	game_functions.Players[playerID] = player
 
+	playerMsg := Msg{
+		Type: "player",
+		Data: player,
+	}
+
 	//send the updated player to all of the clients
 	for _, conn := range Connections {
-		err := conn.Connection.WriteJSON(player)
+		err := conn.Connection.WriteJSON(playerMsg)
 		if err != nil {
 			log.Println(err)
 		}
@@ -259,26 +250,56 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 }
 
 // A function that places a bomb on the game board
-func PlaceBomb(gameGrid [19][19]int, playerID int) {
+func PlaceBomb(gameGrid *[19][19]int, playerID int) {
+	log.Println("Game grid: ", gameGrid)
 	//Get the player from the map
 	player := game_functions.Players[playerID]
 	//Check if the player has bombs left
 	if player.Bombs == 0 {
+		log.Println("Player has no bombs left")
 		return
 	}
 	//Check if the player is on a bomb
-	if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 2 {
+	if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 69 {
+		log.Println("Player is on a bomb")
 		return
 	}
+	//Check the player's bomb range
+	bombRange := player.BombRange
+	log.Println("Bomb range: ", bombRange)
+
 	//Place a bomb on the game board
-	gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 2
+	gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 69
+	log.Println("Bomb placed at: ", player.GridPosition)
 	//Update the player in the map
 	player.Bombs--
 	game_functions.Players[playerID] = player
+	
+
+	log.Println("Game grid after bomb placement: ", gameGrid)
+
+	playerMsg := Msg{
+		Type: "player",
+		Data: player,
+	}
+
 
 	//send the updated player to all of the clients
 	for _, conn := range Connections {
-		err := conn.Connection.WriteJSON(game_functions.Players)
+		err := conn.Connection.WriteJSON(playerMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+
+	gameGridMsg := Msg{
+		Type: "gameGrid",
+		Data: gameGrid,
+	}
+
+	//send the updated game board to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(gameGridMsg)
 		if err != nil {
 			log.Println(err)
 		}
