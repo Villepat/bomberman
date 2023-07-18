@@ -6,6 +6,9 @@ import (
 	"math/rand"
 )
 
+var PlayArea Boundaries
+
+// ToDo: add a argument to specify the number of players
 func GenerateGameBoard() ([19][19]int, []byte, error) {
 	var gameBoard [19][19]int
 	n := len(gameBoard)
@@ -31,6 +34,10 @@ func GenerateGameBoard() ([19][19]int, []byte, error) {
 		startingPosition := GetStartingPosition(i)
 		gameBoard[startingPosition[0]][startingPosition[1]] = i + 3
 	}
+	PlayArea = CalculateBoundaries(gameBoard)
+	log.Println(PlayArea)
+	CellPosition := CalculateCellPosition(150, 99, gameBoard)
+	log.Println(CellPosition)
 
 	// convert gameBoard to json
 	jsonmap, err := json.Marshal(gameBoard)
