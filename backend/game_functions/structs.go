@@ -24,4 +24,4 @@ type Player struct {
 }
 
 // Players map contains all players in the game
-type Players map[int]Player
+var Players = make(map[int]Player)

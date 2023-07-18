@@ -61,8 +61,6 @@ function buildBaseGrid(gameBoard) {
   // Append style element to document head
   document.head.appendChild(style);
 
-  window.webSocketConnection.send("Hello Server!");
-
   // Generate grid cells based on the gameBoard data from the server
   for (let y = n - 1; y >= 0; y--) {
     for (let x = 0; x < n; x++) {
@@ -84,7 +82,11 @@ function buildBaseGrid(gameBoard) {
           break;
         default:
           // place the player
-          cell.classList.add("cell", `starting-cell-${gameBoard[y][x]-3}`, `player-${gameBoard[y][x]-3}`);
+          cell.classList.add(
+            "cell",
+            `starting-cell-${gameBoard[y][x] - 3}`,
+            `player-${gameBoard[y][x] - 3}`
+          );
           break;
       }
 

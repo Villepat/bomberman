@@ -2,6 +2,9 @@
 import { destroyBrick } from "./physics/explosion.js";
 import { render } from "./framework/myFramework.js";
 import { initializeGame } from "./game_board/initialize_game.js";
+import { movePlayer } from "./physics/movement.js";
+
+movePlayer();
 
 if (window.location.pathname === "/") {
   // render the start page
@@ -16,7 +19,11 @@ if (window.location.pathname === "/") {
       },
       {
         tag: "button",
-        attrs: { class: "start-page__button", id: "start-button", type: "button" },
+        attrs: {
+          class: "start-page__button",
+          id: "start-button",
+          type: "button",
+        },
         children: ["Start Game"],
       },
     ],
@@ -63,15 +70,17 @@ wsButton.addEventListener("click", function () {
   }
 });
 
-let testingDestroyBrick = true;
+let testingDestroyBrick = false;
 if (testingDestroyBrick) {
-// add an onCLick event listener to the board
-document.getElementById("game-board").addEventListener("click", function (event) {
-    console.log(event.target.id);
-    // let gameBoard = document.getElementById("game-board").gameBoard;
-    let x = event.target.id.split("-")[1];
-    let y = event.target.id.split("-")[2];
-    console.log(x, y);
-    destroyBrick(x, y);
-});
+  // add an onCLick event listener to the board
+  document
+    .getElementById("game-board")
+    .addEventListener("click", function (event) {
+      console.log(event.target.id);
+      // let gameBoard = document.getElementById("game-board").gameBoard;
+      let x = event.target.id.split("-")[1];
+      let y = event.target.id.split("-")[2];
+      console.log(x, y);
+      destroyBrick(x, y);
+    });
 }
