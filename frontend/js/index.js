@@ -1,16 +1,47 @@
-import buildBaseGrid from "./game_board/build_base.js";
+//import {buildBaseGrid} from "./game_board/build_base.js";
 import { destroyBrick } from "./physics/explosion.js";
+import { render } from "./framework/myFramework.js";
+import { initializeGame } from "./game_board/initialize_game.js";
 
-window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
+if (window.location.pathname === "/") {
+  // render the start page
+  const startPage = render({
+    tag: "div",
+    attrs: { class: "start-page" },
+    children: [
+      {
+        tag: "h1",
+        attrs: { class: "start-page__title" },
+        children: ["Welcome to Bomberman!"],
+      },
+      {
+        tag: "button",
+        attrs: { class: "start-page__button", id: "start-button", type: "button" },
+        children: ["Start Game"],
+      },
+    ],
+  });
+  let welcomeDiv = document.getElementById("welcome-message");
+  welcomeDiv.appendChild(startPage);
+}
 
-window.webSocketConnection.onopen = function (event) {
-  console.log("WebSocket is open now.");
-};
+let startButton = document.getElementById("start-button");
+if (startButton) {
+  // add an onClick event listener to the start button
+  startButton.addEventListener("click", function () {
+    //window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
+    initializeGame();
+  });
+}
 
-window.webSocketConnection.onmessage = function (event) {
-  let gameBoard = JSON.parse(event.data);
-  buildBaseGrid(gameBoard);
-};
+// window.webSocketConnection.onopen = function (event) {
+//   console.log("WebSocket is open now.");
+// };
+
+// window.webSocketConnection.onmessage = function (event) {
+//   let gameBoard = JSON.parse(event.data);
+//   buildBaseGrid(gameBoard);
+// };
 
 // Get the button by its ID
 let wsButton = document.getElementById("wsButton");
@@ -32,12 +63,15 @@ wsButton.addEventListener("click", function () {
   }
 });
 
-//// code for testing the destroyBrick function
+let testingDestroyBrick = true;
+if (testingDestroyBrick) {
 // add an onCLick event listener to the board
-// document.getElementById("game-board").addEventListener("click", function (event) {
-//     console.log(event.target.id);
-//     let gameBoard = document.getElementById("game-board").gameBoard;
-//     let x = event.target.id.split("-")[1];
-//     let y = event.target.id.split("-")[2];
-//     destroyBrick(gameBoard, x, y);
-// });
+document.getElementById("game-board").addEventListener("click", function (event) {
+    console.log(event.target.id);
+    // let gameBoard = document.getElementById("game-board").gameBoard;
+    let x = event.target.id.split("-")[1];
+    let y = event.target.id.split("-")[2];
+    console.log(x, y);
+    destroyBrick(x, y);
+});
+}
