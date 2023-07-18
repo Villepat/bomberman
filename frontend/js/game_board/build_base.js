@@ -79,13 +79,36 @@ function buildBaseGrid(gameBoard) {
         case 3:
           cell.classList.add("cell", "edge");
           break;
-        default:
-          // place the player
+        case 4:
           cell.classList.add(
             "cell",
-            `starting-cell-${gameBoard[y][x] - 3}`,
-            `player-${gameBoard[y][x] - 3}`
+            `starting-cell-1`,
+            `player-1`,
           );
+          break;
+        case 5:
+          cell.classList.add(
+            "cell",
+            `starting-cell-4`,
+            `player-4`
+          );
+          break;
+        case 6:
+          cell.classList.add(
+            "cell",
+            `starting-cell-3`,
+            `player-3`
+          );
+          break;
+        case 7:
+          cell.classList.add(
+            "cell",
+            `starting-cell-2`,
+            `player-2`
+          );
+          break;
+        default:
+          cell.classList.add("cell");
           break;
       }
 

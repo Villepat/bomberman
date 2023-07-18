@@ -4,7 +4,6 @@ import { render } from "./framework/myFramework.js";
 import { initializeGame } from "./game_board/initialize_game.js";
 import { movePlayer } from "./physics/movement.js";
 
-movePlayer();
 
 if (window.location.pathname === "/") {
   // render the start page
@@ -38,6 +37,7 @@ if (startButton) {
   startButton.addEventListener("click", function () {
     //window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
     initializeGame();
+    movePlayer();
   });
 }
 
@@ -70,14 +70,13 @@ wsButton.addEventListener("click", function () {
   }
 });
 
-let testingDestroyBrick = false;
+let testingDestroyBrick = true;
 if (testingDestroyBrick) {
   // add an onCLick event listener to the board
   document
     .getElementById("game-board")
     .addEventListener("click", function (event) {
       console.log(event.target.id);
-      // let gameBoard = document.getElementById("game-board").gameBoard;
       let x = event.target.id.split("-")[1];
       let y = event.target.id.split("-")[2];
       console.log(x, y);

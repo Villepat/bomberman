@@ -1,21 +1,25 @@
 // File for functions that has to do with moving a player
 export function movePlayer(player) {
+  console.log("movePlayer function called")
   let message;
 
   document.addEventListener("keydown", function (event) {
     switch (event.code) {
       case "ArrowLeft":
         message = {
+          command: "move",
           direction: "left",
         };
         break;
       case "ArrowUp":
         message = {
+          command: "move",
           direction: "up",
         };
         break;
       case "ArrowRight":
         message = {
+          command: "move",
           direction: "right",
         };
         break;
@@ -26,7 +30,13 @@ export function movePlayer(player) {
           direction: "down",
           // Add other properties to the message as needed
         };
-
+        break;
+      case "Space":
+        message = {
+          command: "place-bomb",
+          // Add other properties to the message as needed
+        };
+        placeBomb();
         break;
       default:
         // if other key pressed
@@ -53,22 +63,23 @@ export function movePlayer(player) {
 
 // hardcoded for player 1
 function updatePlayerPosition(player) {
-  let playerPositions = document.getElementsByClassName("player-1");
+  console.log("player: ", player);
+  let playerPositions = document.getElementsByClassName(`player-${player.PlayerID}`);
 
   // Assuming there is only one element with "player-1" class
   if (playerPositions.length > 0) {
     let playerPosition = playerPositions[0];
     console.log(playerPosition);
-    playerPosition.classList.remove("player-1");
+    playerPosition.classList.remove(`player-${player.PlayerID}`);
     playerPosition.classList.add("cell");
   }
 
   // get the new player position
-  console.log(player[1].GridPosition);
+  console.log(player.GridPosition);
   let newPlayerPosition = document.getElementById(
-    `cell-${player[1].GridPosition[0]}-${player[1].GridPosition[1]}`
+    `cell-${player.GridPosition[0]}-${player.GridPosition[1]}`
   );
   // replace the player position
   newPlayerPosition.classList.remove("cell");
-  newPlayerPosition.classList.add("player-1");
+  newPlayerPosition.classList.add(`player-${player.PlayerID}`);
 }
