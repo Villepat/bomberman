@@ -1,12 +1,12 @@
 /* Styles for the game board
-#game-board {
+/* #game-board {
     display: grid;
     grid-template-columns: repeat(n, 1fr);
     grid-template-rows: repeat(n, 1fr);
     gap: 1px;
     background-color: #ddd;
     padding: 5px;
-  }
+  } */
   
   /* Styles for the individual cells */
 /* .cell {
@@ -19,8 +19,29 @@
   }
    */
 
+  body {
+    background-color: #02282a;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 0;
+    padding: 0;
+  }
+
+  h1 {
+    text-align: center;
+    color: rgb(40, 176, 146);
+    font-size: 40px;
+    margin-top: 20px;
+  }
 .edge {
   color: black;
+}
+
+.game-board {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 20px;
 }
 
 #hud-container {
@@ -35,7 +56,9 @@
   justify-content: space-around;
   margin-top: 20px;
   border: 1px solid black;
+  border-radius: 10px;
   width: 80%;
+  background-color: rgb(40, 176, 146);
 }
 
 .player-info {
@@ -45,6 +68,9 @@
   justify-content: center;
   text-align: center;
   margin-bottom: 10px;
+  width: 60px;
+  height: 150px;
+  object-fit: cover;
 }
 
 .player-name {
@@ -55,4 +81,16 @@
 .player-lives {
   font-weight: bold;
   font-size: 18px;
+  display: flex;
 }
+
+.heart {
+  width: 30px;
+  height: 30px;
+}
+
+.player-image {
+  width: 50px;
+  height: 50px;
+}
+

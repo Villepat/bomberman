@@ -13,7 +13,7 @@ function buildBaseGrid(gameBoard) {
             display: grid;
             grid-template-columns: ${gridTemplate};
             grid-template-rows: ${gridTemplate};
-            background-color: #ddd;
+
             justify-content: center;
         }
         .cell {
@@ -21,7 +21,6 @@ function buildBaseGrid(gameBoard) {
             width: 50px;
             background-image: url("/static/images/grass.png");
             background-size: cover;
-            border: 1px solid black;
         }
         .edge {
             background-image: url("/static/images/backgroundbrick1.png");
