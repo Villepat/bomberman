@@ -1,6 +1,6 @@
 // File for functions that has to do with moving a player
 export function movePlayer(player) {
-  console.log("movePlayer function called")
+  console.log("movePlayer function called");
   let message;
 
   document.addEventListener("keydown", function (event) {
@@ -36,35 +36,45 @@ export function movePlayer(player) {
           command: "place-bomb",
           // Add other properties to the message as needed
         };
-        placeBomb();
         break;
-        default:
-          // if other key pressed
-          break;
-        }
-        // Check if the WebSocket is still open before sending a message
-        if (window.webSocketConnection.readyState === WebSocket.OPEN) {
-          // Send the message through the WebSocket connection
-          window.webSocketConnection.send(JSON.stringify(message));
-        } else {
-          console.log("Can't send message, WebSocket connection is not open");
-        }
+      default:
+        // if other key pressed
+        break;
+    }
+    // Check if the WebSocket is still open before sending a message
+    if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+      // Send the message through the WebSocket connection
+      window.webSocketConnection.send(JSON.stringify(message));
+    } else {
+      console.log("Can't send message, WebSocket connection is not open");
+    }
   });
 
+  window.webSocketConnection.onmessage = function (event) {
+    let message = JSON.parse(event.data);
+    console.log("message: ", message);
 
-    window.webSocketConnection.onmessage = function (event) {
-      // get the updated player position
-      let player = JSON.parse(event.data);
-      console.log("player: ", player);
-      // replace the player position
-      updatePlayerPosition(player);
-    };
+    if (message.type === "gameGrid") {
+      console.log("gameGrid received");
+    } else if (message.type === "player") {
+      console.log("player received");
+      updatePlayerPosition(message.data);
+    } else if (message.type === "bomb") {
+      console.log("bomb received");
+      updateBombPlacement(message.data);
+    } else if (message.type === "explosion") {
+      console.log("explosion received");
+      updateExplosion(message.data);
+    }
+  };
 }
 
 // hardcoded for player 1
 function updatePlayerPosition(player) {
   console.log("player: ", player);
-  let playerPositions = document.getElementsByClassName(`player-${player.PlayerID}`);
+  let playerPositions = document.getElementsByClassName(
+    `player-${player.PlayerID}`
+  );
 
   // Assuming there is only one element with "player-1" class
   if (playerPositions.length > 0) {
@@ -82,4 +92,31 @@ function updatePlayerPosition(player) {
   // replace the player position
   newPlayerPosition.classList.remove("cell");
   newPlayerPosition.classList.add(`player-${player.PlayerID}`);
+}
+
+function updateBombPlacement(bomb) {
+  console.log("bomb: ", bomb);
+  let bombPosition = document.getElementById(
+    `cell-${bomb.GridPosition[0]}-${bomb.GridPosition[1]}`
+  );
+
+  bombPosition.classList.remove("cell");
+  bombPosition.classList.add("bomb");
+}
+
+function updateExplosion(explosion) {
+  console.log("explosion: ", explosion);
+  explosion.AffectedCells.forEach((cell) => {
+    let explodedCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
+
+    if (explodedCell.classList.contains("brick")) {
+      explodedCell.classList.remove("brick");
+    }
+    explodedCell.classList.add("explosion");
+    // You may want to remove "explosion" class after some time to make it look like an animation
+    setTimeout(() => {
+      explodedCell.classList.remove("explosion");
+      explodedCell.classList.add("cell");
+    }, 500);
+  });
 }

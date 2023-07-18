@@ -16,6 +16,11 @@ async function buildBaseGrid(gameBoard) {
 
             justify-content: center;
         }
+        .bomb {
+            background-image: url("/static/images/bomb.png");
+            background-size: cover;
+            background-position: center;
+        }
         .cell {
             height: 50px;
             width: 50px;
@@ -80,32 +85,16 @@ async function buildBaseGrid(gameBoard) {
           cell.classList.add("cell", "edge");
           break;
         case 4:
-          cell.classList.add(
-            "cell",
-            `starting-cell-1`,
-            `player-1`,
-          );
+          cell.classList.add("cell", `starting-cell-1`, `player-1`);
           break;
         case 5:
-          cell.classList.add(
-            "cell",
-            `starting-cell-4`,
-            `player-4`
-          );
+          cell.classList.add("cell", `starting-cell-4`, `player-4`);
           break;
         case 6:
-          cell.classList.add(
-            "cell",
-            `starting-cell-3`,
-            `player-3`
-          );
+          cell.classList.add("cell", `starting-cell-3`, `player-3`);
           break;
         case 7:
-          cell.classList.add(
-            "cell",
-            `starting-cell-2`,
-            `player-2`
-          );
+          cell.classList.add("cell", `starting-cell-2`, `player-2`);
           break;
         default:
           cell.classList.add("cell");
