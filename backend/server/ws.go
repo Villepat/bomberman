@@ -11,6 +11,7 @@ import (
 )
 
 var gameBoard []byte
+var gameGrid [19][19]int
 var isGameBoardGenerated bool
 var numConnections = 0
 
@@ -104,9 +105,11 @@ func reader(conn *websocket.Conn) {
 			log.Println("message: ", msg)
 			log.Println("message command: ", msg.Command)
 			log.Println("message text: ", msg.Direction)
-
-			MovePlayer(Connections[conn].UserID, msg.Direction)
-
+			if msg.Command == "move" {
+				MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
+			} else if msg.Command == "place-bomb" {
+				PlaceBomb(gameGrid, Connections[conn].UserID)
+			}
 		}
 	}
 }
@@ -158,13 +161,13 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		player.GridPosition = [2]int{1, 1}
 		player.PixelPosition = [2]int{51, 51}
 	case 2:
-		player.GridPosition = [2]int{17, 1}
-		player.PixelPosition = [2]int{819, 51}
+		player.GridPosition = [2]int{17, 17}
+		player.PixelPosition = [2]int{51, 819}
 	case 3:
 		player.GridPosition = [2]int{1, 17}
-		player.PixelPosition = [2]int{51, 819}
+		player.PixelPosition = [2]int{819, 51}
 	case 4:
-		player.GridPosition = [2]int{17, 17}
+		player.GridPosition = [2]int{17, 1}
 		player.PixelPosition = [2]int{819, 819}
 	}
 	//add player to map of players
@@ -184,7 +187,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if !isGameBoardGenerated {
-		_, gameBoard, err = game_functions.GenerateGameBoard()
+		gameGrid, gameBoard, err = game_functions.GenerateGameBoard()
 		if err != nil {
 			log.Println(err)
 		} else {
@@ -207,7 +210,7 @@ func SetupRoutes() {
 }
 
 // A function that changes the player's direction & position based on data received through the WS
-func MovePlayer(playerID int, direction string) {
+func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 	//Get the player from the map
 	player := game_functions.Players[playerID]
 	//Change the player's direction
@@ -217,21 +220,60 @@ func MovePlayer(playerID int, direction string) {
 	log.Println("Player pixel position before: ", player.PixelPosition)
 	switch direction {
 	case "up":
+		if player.GridPosition[1] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]+1) {
+			break
+		}
 		player.GridPosition[1]++
 		player.PixelPosition[1] += 48
 	case "down":
+		if player.GridPosition[1] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]-1) {
+			break
+		}
 		player.GridPosition[1]--
 		player.PixelPosition[1] -= 48
 	case "left":
+		if player.GridPosition[0] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]-1, player.GridPosition[1]) {
+			break
+		}
 		player.GridPosition[0]--
 		player.PixelPosition[0] -= 48
 	case "right":
+		if player.GridPosition[0] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]+1, player.GridPosition[1]) {
+			break
+		}
 		player.GridPosition[0]++
 		player.PixelPosition[0] += 48
 	}
 	log.Println("Player position after: ", player.GridPosition)
 	log.Println("Player pixel position after: ", player.PixelPosition)
 	//Update the player in the map
+	game_functions.Players[playerID] = player
+
+	//send the updated player to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(player)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+// A function that places a bomb on the game board
+func PlaceBomb(gameGrid [19][19]int, playerID int) {
+	//Get the player from the map
+	player := game_functions.Players[playerID]
+	//Check if the player has bombs left
+	if player.Bombs == 0 {
+		return
+	}
+	//Check if the player is on a bomb
+	if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 2 {
+		return
+	}
+	//Place a bomb on the game board
+	gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 2
+	//Update the player in the map
+	player.Bombs--
 	game_functions.Players[playerID] = player
 
 	//send the updated player to all of the clients

@@ -36,8 +36,6 @@ func GenerateGameBoard() ([19][19]int, []byte, error) {
 	}
 	PlayArea = CalculateBoundaries(gameBoard)
 	log.Println(PlayArea)
-	CellPosition := CalculateCellPosition(150, 99, gameBoard)
-	log.Println(CellPosition)
 
 	// convert gameBoard to json
 	jsonmap, err := json.Marshal(gameBoard)
@@ -77,11 +75,11 @@ func GetStartingPosition(n int) [2]int {
 	case 1:
 		return [2]int{1, 1}
 	case 2:
-		return [2]int{17, 17}
-	case 3:
 		return [2]int{1, 17}
-	case 4:
+	case 3:
 		return [2]int{17, 1}
+	case 4:
+		return [2]int{17, 17}
 	default:
 		return [2]int{0, 0}
 	}
