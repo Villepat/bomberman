@@ -102,6 +102,14 @@ function updateBombPlacement(bomb) {
 
   bombPosition.classList.remove("cell");
   bombPosition.classList.add("bomb");
+
+  //create an img element for the bomb image
+  let bombImg = document.createElement("img");
+  bombImg.src = "/static/images/bomb1.png";
+  //add a class bomb to the img element
+  bombImg.classList.add("bomb");
+
+  bombPosition.appendChild(bombImg);
 }
 
 function updateExplosion(explosion) {
