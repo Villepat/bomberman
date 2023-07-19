@@ -3,6 +3,7 @@ package server
 import (
 	"bomberman-dom/game_functions"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -201,6 +202,15 @@ func SetupRoutes() {
 func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 	//Get the player from the map
 	player := game_functions.Players[playerID]
+
+	speed := player.Speed
+	lastMove := player.LastMove
+	//call isAllowedToMove to check if the player is allowed to move
+	if !IsAllowedToMove(speed, lastMove) {
+		fmt.Println("Player is not allowed to move yet")
+		return
+	}
+
 	//Change the player's direction
 	player.Direction = direction
 	//Change the player's position
@@ -213,24 +223,32 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 		}
 		player.GridPosition[1]++
 		player.PixelPosition[1] += 48
+		//update LastMove
+		player.LastMove = time.Now()
 	case "down":
 		if player.GridPosition[1] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]-1) {
 			break
 		}
 		player.GridPosition[1]--
 		player.PixelPosition[1] -= 48
+		//update LastMove
+		player.LastMove = time.Now()
 	case "left":
 		if player.GridPosition[0] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]-1, player.GridPosition[1]) {
 			break
 		}
 		player.GridPosition[0]--
 		player.PixelPosition[0] -= 48
+		//update LastMove
+		player.LastMove = time.Now()
 	case "right":
 		if player.GridPosition[0] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]+1, player.GridPosition[1]) {
 			break
 		}
 		player.GridPosition[0]++
 		player.PixelPosition[0] += 48
+		//update LastMove
+		player.LastMove = time.Now()
 	}
 	log.Println("Player position after: ", player.GridPosition)
 	log.Println("Player pixel position after: ", player.PixelPosition)
@@ -249,6 +267,37 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 			log.Println(err)
 		}
 	}
+}
+
+// A function that receives a players speed and when it was last moved and returns a bool
+// if speed is 1, the player can move every 0.5 seconds
+// if speed is 2, the player can move every 0.3 seconds
+// if speed is 3, the player can move every 0.2 seconds
+func IsAllowedToMove(speed int, lastMove time.Time) bool {
+	//get the current time
+	currentTime := time.Now()
+	//get the difference between the current time and the last move
+	timeDifference := currentTime.Sub(lastMove)
+	fmt.Println("Current time: ", currentTime)
+	fmt.Println("Last move: ", lastMove)
+	fmt.Println("Time difference: ", timeDifference)
+	//if the time difference is less than the allowed time, return false
+	switch speed {
+	case 1:
+		if timeDifference.Seconds() < 0.5 {
+			return false
+		}
+	case 2:
+		if timeDifference.Seconds() < 0.35 {
+			return false
+		}
+	case 3:
+		if timeDifference.Seconds() < 0.2 {
+			return false
+		}
+	}
+	//	fmt.Println("Player is allowed to move")
+	return true
 }
 
 // A function that places a bomb on the game board

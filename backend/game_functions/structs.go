@@ -1,5 +1,7 @@
 package game_functions
 
+import "time"
+
 // Boundaries of the playable area (17x17 tiles)
 // max x = 819px, max y = 819px
 // min x = 51px, min y = 51px
@@ -21,6 +23,7 @@ type Player struct {
 	BombRange     int
 	GridPosition  [2]int
 	PixelPosition [2]int
+	LastMove      time.Time
 }
 
 // Players map contains all players in the game
