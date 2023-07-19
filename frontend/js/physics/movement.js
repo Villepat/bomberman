@@ -103,28 +103,37 @@ function updateBombPlacement(bomb) {
   bombPosition.classList.remove("cell");
   bombPosition.classList.add("bomb");
 
-  //create an img element for the bomb image
+  // Create an img element for the bomb image
   let bombImg = document.createElement("img");
   bombImg.src = "/static/images/bomb1.png";
-  //add a class bomb to the img element
   bombImg.classList.add("bomb");
 
   bombPosition.appendChild(bombImg);
+
+  // Automatically remove the bomb after a predetermined time
+  setTimeout(() => {
+    bombPosition.removeChild(bombImg);
+    bombPosition.classList.remove("bomb");
+    bombPosition.classList.add("cell");
+  }, bomb.ExplosionTime || 2000); // Assuming the explosion time is 3 seconds (3000ms). Adjust this value as needed.
 }
 
 function updateExplosion(explosion) {
   console.log("explosion: ", explosion);
-  explosion.AffectedCells.forEach((cell) => {
-    let explodedCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
 
-    if (explodedCell.classList.contains("brick")) {
-      explodedCell.classList.remove("brick");
-    }
-    explodedCell.classList.add("explosion");
-    // You may want to remove "explosion" class after some time to make it look like an animation
-    setTimeout(() => {
-      explodedCell.classList.remove("explosion");
-      explodedCell.classList.add("cell");
-    }, 500);
-  });
+  if (explosion.AffectedCells && explosion.AffectedCells.length > 0) {
+    explosion.AffectedCells.forEach((cell) => {
+      let explodedCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
+
+      if (explodedCell.classList.contains("brick")) {
+        explodedCell.classList.remove("brick");
+      }
+      explodedCell.classList.add("explosion");
+      // You may want to remove "explosion" class after some time to make it look like an animation
+      setTimeout(() => {
+        explodedCell.classList.remove("explosion");
+        explodedCell.classList.add("cell");
+      }, 500);
+    });
+  }
 }
