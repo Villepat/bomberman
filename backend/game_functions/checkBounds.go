@@ -7,9 +7,9 @@ func CheckBounds(gameBoard [19][19]int, y, x int) bool {
 		log.Println("Out of bounds")
 		return false
 	}
-	log.Println(gameBoard)
+	//log.Println(gameBoard)
 	log.Println("Checking bounds for: ", x, y)
-	log.Println(gameBoard[x][y])
+	//log.Println(gameBoard[x][y])
 	if gameBoard[x][y] == 1 || gameBoard[x][y] == 2 {
 		log.Println("Cell is occupied")
 		return false
