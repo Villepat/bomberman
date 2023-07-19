@@ -39,10 +39,9 @@ type Message struct {
 }
 
 type Msg struct {
-	Type string 	`json:"type"`
+	Type string      `json:"type"`
 	Data interface{} `json:"data"`
 }
-
 
 // function to read the data from the websocket connection
 func reader(conn *websocket.Conn) {
@@ -96,7 +95,7 @@ func reader(conn *websocket.Conn) {
 				log.Println("move command received")
 				MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
 			} else if msg.Command == "place-bomb" {
-				log.Println("place-bomb command received")	
+				log.Println("place-bomb command received")
 				PlaceBomb(&gameGrid, Connections[conn].UserID)
 			}
 		}
@@ -254,83 +253,85 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 
 // A function that places a bomb on the game board
 func PlaceBomb(gameGrid *[19][19]int, playerID int) {
-    gridMutex.Lock()
-    log.Println("Game grid: ", gameGrid)
-    // Get the player from the map
-    player := game_functions.Players[playerID]
-    // Check if the player has bombs left
-    if player.Bombs == 0 {
-        log.Println("Player has no bombs left")
-        return
-    }
-    // Check if the player is on a bomb
-    if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 69 {
-        log.Println("Player is on a bomb")
-        return
-    }
-    // Check the player's bomb range
-    bombRange := player.BombRange
-    log.Println("Bomb range: ", bombRange)
+	gridMutex.Lock()
+	log.Println("Game grid: ", gameGrid)
+	// Get the player from the map
+	player := game_functions.Players[playerID]
+	// CHANGE THIS TO THE CONCURRENT BOMB LIMIT!!!!!!!
+	if player.Bombs == 0 {
+		log.Println("Player has no bombs left")
+		defer gridMutex.Unlock()
+		return
+	}
+	// Check if the player is on a bomb
+	if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 69 {
+		log.Println("Player is on a bomb")
+		defer gridMutex.Unlock()
+		return
+	}
+	// Check the player's bomb range
+	bombRange := player.BombRange
+	log.Println("Bomb range: ", bombRange)
 
-    // Place a bomb on the game board
-    gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 69
-    log.Println("Bomb placed at: ", player.GridPosition)
-    // Update the player in the map
-    player.Bombs--
-    game_functions.Players[playerID] = player
+	// Place a bomb on the game board
+	gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 69
+	log.Println("Bomb placed at: ", player.GridPosition)
+	// Update the player in the map
+	player.Bombs--
+	game_functions.Players[playerID] = player
 
-    log.Println("Game grid after bomb placement: ", gameGrid)
+	log.Println("Game grid after bomb placement: ", gameGrid)
 
-   // Prepare bomb message
-bombMsg := Msg{
-    Type: "bomb",
-    Data: struct {
-        GridPosition []int
-    }{GridPosition: []int{player.GridPosition[0], player.GridPosition[1]}},
-}
+	// Prepare bomb message
+	bombMsg := Msg{
+		Type: "bomb",
+		Data: struct {
+			GridPosition []int
+		}{GridPosition: []int{player.GridPosition[0], player.GridPosition[1]}},
+	}
 
-    // Send the bomb message to all of the clients
-    for _, conn := range Connections {
-        err := conn.Connection.WriteJSON(bombMsg)
-        if err != nil {
-            log.Println(err)
-        }
-    }
+	// Send the bomb message to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(bombMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 
-    // Start a timer for the bomb explosion
-    go func() {
-        timer := time.NewTimer(time.Duration(2) * time.Second)
-        <-timer.C
-        HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange)
-    }()
+	// Start a timer for the bomb explosion
+	go func() {
+		timer := time.NewTimer(time.Duration(2) * time.Second)
+		<-timer.C
+		HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange)
+	}()
 
-    defer gridMutex.Unlock()
+	defer gridMutex.Unlock()
 
-    playerMsg := Msg{
-        Type: "player",
-        Data: player,
-    }
+	playerMsg := Msg{
+		Type: "player",
+		Data: player,
+	}
 
-    // Send the updated player to all of the clients
-    for _, conn := range Connections {
-        err := conn.Connection.WriteJSON(playerMsg)
-        if err != nil {
-            log.Println(err)
-        }
-    }
+	// Send the updated player to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(playerMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 
-    gameGridMsg := Msg{
-        Type: "gameGrid",
-        Data: gameGrid,
-    }
+	gameGridMsg := Msg{
+		Type: "gameGrid",
+		Data: gameGrid,
+	}
 
-    // Send the updated game board to all of the clients
-    for _, conn := range Connections {
-        err := conn.Connection.WriteJSON(gameGridMsg)
-        if err != nil {
-            log.Println(err)
-        }
-    }
+	// Send the updated game board to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(gameGridMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
 }
 
 func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {

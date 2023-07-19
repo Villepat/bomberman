@@ -43,6 +43,7 @@ export function movePlayer(player) {
     }
     // Check if the WebSocket is still open before sending a message
     if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+      console.log("Sending message", message);
       // Send the message through the WebSocket connection
       window.webSocketConnection.send(JSON.stringify(message));
     } else {
