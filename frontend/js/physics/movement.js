@@ -111,13 +111,60 @@ function updateBombPlacement(bomb) {
 
   bombPosition.appendChild(bombImg);
 
+  let isExploding = false;
+
+  // Timer to switch between bomb images
+  setInterval(() => {
+    isExploding = !isExploding;
+    bombImg.src = isExploding ? "/static/images/bomb3.png" : "/static/images/bomb1.png";
+  }, 450);
+
   // Automatically remove the bomb after a predetermined time
   setTimeout(() => {
     bombPosition.removeChild(bombImg);
     bombPosition.classList.remove("bomb");
     bombPosition.classList.add("cell");
-  }, bomb.ExplosionTime || 2000); // Assuming the explosion time is 3 seconds (3000ms). Adjust this value as needed.
+
+    // Create an img element for the first explosion image
+    let explosionImg1 = document.createElement("img");
+    explosionImg1.src = "/static/images/explosion1.png";
+    explosionImg1.classList.add("explosion-image");
+    bombPosition.appendChild(explosionImg1);
+
+    // Switch to the second explosion image after a short delay
+    setTimeout(() => {
+      // Remove the first explosion image
+      bombPosition.removeChild(explosionImg1);
+
+      // Create an img element for the second explosion image
+      let explosionImg2 = document.createElement("img");
+      explosionImg2.src = "/static/images/explosion2.png";
+      explosionImg2.classList.add("explosion-image");
+      bombPosition.appendChild(explosionImg2);
+
+      // Switch to the third explosion image after another short delay
+      setTimeout(() => {
+        // Remove the second explosion image
+        bombPosition.removeChild(explosionImg2);
+
+        // Create an img element for the third explosion image
+        let explosionImg3 = document.createElement("img");
+        explosionImg3.src = "/static/images/explosion3.png";
+        explosionImg3.classList.add("explosion-image");
+        bombPosition.appendChild(explosionImg3);
+
+        // Remove the third explosion image after another short delay
+        setTimeout(() => {
+          bombPosition.removeChild(explosionImg3);
+          // Add back the "cell" class to the cell
+          bombPosition.classList.add("cell");
+        }, 500); // Adjust this value as needed for the duration of the explosion3 image
+      }, 200); // Adjust this value as needed for the delay before the explosion3 image appears
+    }, 200); // Adjust this value as needed for the delay before the explosion2 image appears
+  }, bomb.ExplosionTime || 2000); // Assuming the explosion time is 2 seconds (2000ms). Adjust this value as needed.
 }
+
+
 
 function updateExplosion(explosion) {
   console.log("explosion: ", explosion);
@@ -128,13 +175,46 @@ function updateExplosion(explosion) {
 
       if (explodedCell.classList.contains("brick")) {
         explodedCell.classList.remove("brick");
+
+        // Create an img element for the explosion image
+        const explosionImg = document.createElement("img");
+        explosionImg.src = "/static/images/explosion1.png";
+        explosionImg.classList.add("explosion-image");
+        explodedCell.appendChild(explosionImg);
+
+        let isExploding = false;
+        const explosionImages = [
+          "/static/images/explosion1.png",
+          "/static/images/explosion2.png",
+          "/static/images/explosion3.png",
+        ];
+        let index = 0;
+
+        const switchImage = () => {
+          isExploding = !isExploding;
+          explosionImg.src = isExploding ? explosionImages[index] : "/static/images/explosion1.png";
+          index++;
+
+          if (index < explosionImages.length) {
+            setTimeout(switchImage, 200);
+          } else {
+            setTimeout(() => {
+              explodedCell.removeChild(explosionImg);
+              explodedCell.classList.remove("explosion");
+              explodedCell.classList.add("cell");
+            }, 500);
+          }
+        };
+
+        setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
+      } else {
+        // If the cell is not a brick, just apply the regular explosion animation
+        explodedCell.classList.add("explosion");
+        setTimeout(() => {
+          explodedCell.classList.remove("explosion");
+          explodedCell.classList.add("cell");
+        }, 500);
       }
-      explodedCell.classList.add("explosion");
-      // You may want to remove "explosion" class after some time to make it look like an animation
-      setTimeout(() => {
-        explodedCell.classList.remove("explosion");
-        explodedCell.classList.add("cell");
-      }, 500);
     });
   }
 }
