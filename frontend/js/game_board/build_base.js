@@ -16,11 +16,6 @@ async function buildBaseGrid(gameBoard) {
 
             justify-content: center;
         }
-        .bomb {
-            background-image: url("/static/images/bomb.png");
-            background-size: cover;
-            background-position: center;
-        }
         .cell {
             height: 50px;
             width: 50px;
