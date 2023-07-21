@@ -205,7 +205,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 	//Get the player from the map
 	player := game_functions.Players[playerID]
 
-
 	speed := player.Speed
 	lastMove := player.LastMove
 	//call isAllowedToMove to check if the player is allowed to move
@@ -213,7 +212,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		fmt.Println("Player is not allowed to move yet")
 		return gameGrid
 	}
-
 
 	//Change the player's direction
 	player.Direction = direction
@@ -448,54 +446,67 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	// Clean the bomb from gameGrid
 	gameGrid[y][x] = 0
 
-	// The explosion's affected area is the bomb range in each direction.
-	//NOTE: unless there is steel in the way of the explosion, then the explosion stops there.
 	var affectedCells [][]int
-	// Handle the bomb explosion here. For now, let's just destroy the destroyable blocks (1 -> 0).
-	// Add a power up to the game board with a 20% chance
-	//power up types:
-	// 8 = speed
-	// 9 = bombs
-	// 10 = bomb range
-	for i := -bombRange; i <= bombRange; i++ {
-		rand.Seed(time.Now().UnixNano())
-		if x+i >= 0 && x+i < 19 && gameGrid[y][x+i] == 1 {
-			// 20% chance of a power up, power ups distributed evenly
-			if rand.Float32() < 0.6 {
-				gameGrid[y][x+i] = 8 + rand.Intn(3)
-				log.Println("Power up placed at: ", x+i, y)
-			} else {
-				gameGrid[y][x+i] = 0
-				log.Println("Block destroyed at: ", x+i, y)
+	var affectedPlayers []int
+	rand.Seed(time.Now().UnixNano())
+
+	// Explosion to the right
+	for i := 1; i <= bombRange; i++ {
+		if x+i < 19 {
+			if gameGrid[y][x+i] == 2 {
+				break
 			}
-			affectedCells = append(affectedCells, []int{x + i, y})
-		}
-		if y+i >= 0 && y+i < 19 && gameGrid[y+i][x] == 1 {
-			// 20% chance of a power up, power ups distributed evenly
-			if rand.Float32() < 0.6 {
-				gameGrid[y+i][x] = 8 + rand.Intn(3)
-				log.Println("Power up placed at: ", x, y+i)
-			} else {
-				gameGrid[y+i][x] = 0
-				log.Println("Block destroyed at: ", x, y+i)
-			}
-			affectedCells = append(affectedCells, []int{x, y + i})
+			handleExplosionLogic(x+i, y, gameGrid, &affectedCells, &affectedPlayers)
 		}
 	}
+
+	// Explosion to the left
+	for i := 1; i <= bombRange; i++ {
+		if x-i >= 0 {
+			if gameGrid[y][x-i] == 2 {
+				break
+			}
+			handleExplosionLogic(x-i, y, gameGrid, &affectedCells, &affectedPlayers)
+		}
+	}
+
+	// Explosion upwards
+	for i := 1; i <= bombRange; i++ {
+		if y+i < 19 {
+			if gameGrid[y+i][x] == 2 {
+				break
+			}
+			handleExplosionLogic(x, y+i, gameGrid, &affectedCells, &affectedPlayers)
+		}
+	}
+
+	// Explosion downwards
+	for i := 1; i <= bombRange; i++ {
+		if y-i >= 0 {
+			if gameGrid[y-i][x] == 2 {
+				break
+			}
+			handleExplosionLogic(x, y-i, gameGrid, &affectedCells, &affectedPlayers)
+		}
+	}
+
 	gridMutex.Unlock()
 
 	// Log the state of game grid after explosion
 	printBoard(gameGrid)
 	log.Println("Affected cells: ", affectedCells)
+	log.Println("Affected players: ", affectedPlayers)
 
 	explosionMsg := Msg{
 		Type: "explosion",
 		Data: struct {
-			GameGrid      *[19][19]int
-			AffectedCells [][]int
+			GameGrid        *[19][19]int
+			AffectedCells   [][]int
+			AffectedPlayers []int
 		}{
-			GameGrid:      gameGrid,
-			AffectedCells: affectedCells,
+			GameGrid:        gameGrid,
+			AffectedCells:   affectedCells,
+			AffectedPlayers: affectedPlayers,
 		},
 	}
 
@@ -506,6 +517,55 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 			log.Println(err)
 		}
 	}
+
+	playerMsg := Msg{
+		Type: "player",
+		Data: game_functions.Players,
+	}
+
+	//send the updated players to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(playerMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+// handleExplosionLogic is a helper function to manage the explosion logic at a given cell.
+func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[][]int, affectedPlayers *[]int) {
+	if gameGrid[y][x] == 1 {
+		// 20% chance of a power up, power ups distributed evenly
+		if rand.Float32() < 0.6 {
+			gameGrid[y][x] = 8 + rand.Intn(3)
+			log.Println("Power up placed at: ", x, y)
+		} else {
+			gameGrid[y][x] = 0
+			log.Println("Block destroyed at: ", x, y)
+		}
+		*affectedCells = append(*affectedCells, []int{x, y})
+	}
+	for _, player := range game_functions.Players {
+		if player.GridPosition[0] == x && player.GridPosition[1] == y {
+			player.Lives--
+			if player.Lives == 0 {
+				// Player is dead
+				player.Bombs = 1
+				player.BombRange = 1
+				game_functions.Players[player.PlayerID] = player
+				log.Println("Player ", player.PlayerID, " is dead")
+				*affectedPlayers = append(*affectedPlayers, player.PlayerID)
+			} else {
+				// Player is alive
+				player.Bombs = 1
+				player.BombRange = 1
+				game_functions.Players[player.PlayerID] = player
+				log.Println("Player ", player.PlayerID, " is alive")
+				*affectedPlayers = append(*affectedPlayers, player.PlayerID)
+			}
+		}
+	}
+
 }
 
 func printBoard(board *[19][19]int) {
