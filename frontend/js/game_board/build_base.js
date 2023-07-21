@@ -29,6 +29,15 @@ async function buildBaseGrid(gameBoard) {
         .steel {
             background-image: url("/static/images/backgroundbrick1.png");
         }
+        .speedy {
+          background-image: url("/static/images/brick.png");
+        }
+        .bombAmountIncrease {
+          background-image: url("/static/images/brick.png");
+        }
+        .bombRangeIncrease {
+          background-image: url("/static/images/brick.png");
+        }
         .safe-zone {
             background-image: url("/static/images/grass.png");
             background-size: cover;

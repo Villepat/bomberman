@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"sync"
@@ -94,7 +95,7 @@ func reader(conn *websocket.Conn) {
 			log.Println("message text: ", msg.Direction)
 			if msg.Command == "move" {
 				log.Println("move command received")
-				MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
+				gameGrid = MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
 			} else if msg.Command == "place-bomb" {
 				log.Println("place-bomb command received")
 				PlaceBomb(&gameGrid, Connections[conn].UserID)
@@ -199,17 +200,20 @@ func SetupRoutes() {
 }
 
 // A function that changes the player's direction & position based on data received through the WS
-func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
+// NOTE TO VILLE: make helper function for adding powerups to player
+func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]int {
 	//Get the player from the map
 	player := game_functions.Players[playerID]
 
-	// speed := player.Speed
-	// lastMove := player.LastMove
-	// //call isAllowedToMove to check if the player is allowed to move
-	// if !IsAllowedToMove(speed, lastMove) {
-	// 	fmt.Println("Player is not allowed to move yet")
-	// 	return
-	// }
+
+	speed := player.Speed
+	lastMove := player.LastMove
+	//call isAllowedToMove to check if the player is allowed to move
+	if !IsAllowedToMove(speed, lastMove) {
+		fmt.Println("Player is not allowed to move yet")
+		return gameGrid
+	}
+
 
 	//Change the player's direction
 	player.Direction = direction
@@ -223,6 +227,18 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 		}
 		player.GridPosition[1]++
 		player.PixelPosition[1] += 48
+
+		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
+			player.Speed++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
+			player.Bombs++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
+			player.BombRange++
+		}
+		//update the value of gameGrid at player.GridPosition to 0
+		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+
 		//update LastMove
 		player.LastMove = time.Now()
 	case "down":
@@ -231,6 +247,18 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 		}
 		player.GridPosition[1]--
 		player.PixelPosition[1] -= 48
+
+		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
+			player.Speed++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
+			player.Bombs++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
+			player.BombRange++
+		}
+		//update the value of gameGrid at player.GridPosition to 0
+		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+
 		//update LastMove
 		player.LastMove = time.Now()
 	case "left":
@@ -239,6 +267,18 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 		}
 		player.GridPosition[0]--
 		player.PixelPosition[0] -= 48
+
+		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
+			player.Speed++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
+			player.Bombs++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
+			player.BombRange++
+		}
+		//update the value of gameGrid at player.GridPosition to 0
+		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+
 		//update LastMove
 		player.LastMove = time.Now()
 	case "right":
@@ -247,11 +287,27 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 		}
 		player.GridPosition[0]++
 		player.PixelPosition[0] += 48
+
+		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
+			player.Speed++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
+			player.Bombs++
+		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
+			player.BombRange++
+		}
+		//update the value of gameGrid at player.GridPosition to 0
+		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+
 		//update LastMove
 		player.LastMove = time.Now()
 	}
 	log.Println("Player position after: ", player.GridPosition)
 	log.Println("Player pixel position after: ", player.PixelPosition)
+	//print player powerups
+	log.Println("Player speed: ", player.Speed)
+	log.Println("Player bombs: ", player.Bombs)
+	log.Println("Player bomb range: ", player.BombRange)
 	//Update the player in the map
 	game_functions.Players[playerID] = player
 
@@ -267,6 +323,7 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) {
 			log.Println(err)
 		}
 	}
+	return gameGrid
 }
 
 // A function that receives a players speed and when it was last moved and returns a bool
@@ -392,15 +449,36 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	gameGrid[y][x] = 0
 
 	// The explosion's affected area is the bomb range in each direction.
+	//NOTE: unless there is steel in the way of the explosion, then the explosion stops there.
 	var affectedCells [][]int
 	// Handle the bomb explosion here. For now, let's just destroy the destroyable blocks (1 -> 0).
+	// Add a power up to the game board with a 20% chance
+	//power up types:
+	// 8 = speed
+	// 9 = bombs
+	// 10 = bomb range
 	for i := -bombRange; i <= bombRange; i++ {
+		rand.Seed(time.Now().UnixNano())
 		if x+i >= 0 && x+i < 19 && gameGrid[y][x+i] == 1 {
-			gameGrid[y][x+i] = 0
+			// 20% chance of a power up, power ups distributed evenly
+			if rand.Float32() < 0.6 {
+				gameGrid[y][x+i] = 8 + rand.Intn(3)
+				log.Println("Power up placed at: ", x+i, y)
+			} else {
+				gameGrid[y][x+i] = 0
+				log.Println("Block destroyed at: ", x+i, y)
+			}
 			affectedCells = append(affectedCells, []int{x + i, y})
 		}
 		if y+i >= 0 && y+i < 19 && gameGrid[y+i][x] == 1 {
-			gameGrid[y+i][x] = 0
+			// 20% chance of a power up, power ups distributed evenly
+			if rand.Float32() < 0.6 {
+				gameGrid[y+i][x] = 8 + rand.Intn(3)
+				log.Println("Power up placed at: ", x, y+i)
+			} else {
+				gameGrid[y+i][x] = 0
+				log.Println("Block destroyed at: ", x, y+i)
+			}
 			affectedCells = append(affectedCells, []int{x, y + i})
 		}
 	}

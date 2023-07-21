@@ -82,6 +82,10 @@ function updatePlayerPosition(player) {
     let playerPosition = playerPositions[0];
     console.log(playerPosition);
     playerPosition.classList.remove(`player-${player.PlayerID}`);
+    //remove powerup classes in case you picked one up
+    playerPosition.classList.remove("speedy");
+    playerPosition.classList.remove("bombAmountIncrease");
+    playerPosition.classList.remove("bombRangeIncrease");
     playerPosition.classList.add("cell");
   }
 
@@ -116,7 +120,9 @@ function updateBombPlacement(bomb) {
   // Timer to switch between bomb images
   setInterval(() => {
     isExploding = !isExploding;
-    bombImg.src = isExploding ? "/static/images/bomb3.png" : "/static/images/bomb1.png";
+    bombImg.src = isExploding
+      ? "/static/images/bomb3.png"
+      : "/static/images/bomb1.png";
   }, 450);
 
   // Automatically remove the bomb after a predetermined time
@@ -164,10 +170,9 @@ function updateBombPlacement(bomb) {
   }, bomb.ExplosionTime || 2000); // Assuming the explosion time is 2 seconds (2000ms). Adjust this value as needed.
 }
 
-
-
 function updateExplosion(explosion) {
-  console.log("explosion: ", explosion);
+  // console.log("explosion: ", explosion);
+  //console.log("affected cells: ", explosion.AffectedCells);
 
   if (explosion.AffectedCells && explosion.AffectedCells.length > 0) {
     explosion.AffectedCells.forEach((cell) => {
@@ -192,7 +197,9 @@ function updateExplosion(explosion) {
 
         const switchImage = () => {
           isExploding = !isExploding;
-          explosionImg.src = isExploding ? explosionImages[index] : "/static/images/explosion1.png";
+          explosionImg.src = isExploding
+            ? explosionImages[index]
+            : "/static/images/explosion1.png";
           index++;
 
           if (index < explosionImages.length) {
@@ -205,8 +212,37 @@ function updateExplosion(explosion) {
             }, 500);
           }
         };
-
+        console.log("exploded cell: ", cell);
+        console.log(
+          "exploded cell value: ",
+          explosion.GameGrid[cell[1]][cell[0]]
+        );
         setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
+        //depending on the value in the GameGrid we can determine what type of powerup to spawn
+
+        //switch case that checks the value of the cell in the GameGrid and assigns the correct class if it is a powerup
+        switch (explosion.GameGrid[cell[1]][cell[0]]) {
+          case 8:
+            //assign class ".speedy"
+            explodedCell.classList.remove("cell");
+            explodedCell.classList.add("speedy");
+            console.log("speedy");
+            break;
+          case 9:
+            //assign class ".bombAmountIncrase"
+            explodedCell.classList.add("bombAmountIncrease");
+            explodedCell.classList.remove("cell");
+            console.log("bombAmountIncrease");
+            break;
+          case 10:
+            //assign class ".bombRangeIncrease"
+            explodedCell.classList.add("bombRangeIncrease");
+            explodedCell.classList.remove("cell");
+            console.log("bombRangeIncrease");
+            break;
+          default:
+            break;
+        }
       } else {
         // If the cell is not a brick, just apply the regular explosion animation
         explodedCell.classList.add("explosion");
