@@ -142,7 +142,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		Name:      userconn.Username,
 		Speed:     1,
 		Lives:     3,
-		Bombs:     100,
+		Bombs:     1000000000,
 		BombRange: 1,
 		Direction: "down",
 	}
@@ -550,14 +550,12 @@ func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[]
 			player.Lives--
 			if player.Lives == 0 {
 				// Player is dead
-				player.Bombs = 1
 				player.BombRange = 1
 				game_functions.Players[player.PlayerID] = player
 				log.Println("Player ", player.PlayerID, " is dead")
 				*affectedPlayers = append(*affectedPlayers, player.PlayerID)
 			} else {
 				// Player is alive
-				player.Bombs = 1
 				player.BombRange = 1
 				game_functions.Players[player.PlayerID] = player
 				log.Println("Player ", player.PlayerID, " is alive")
