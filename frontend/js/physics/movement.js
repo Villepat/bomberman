@@ -8,7 +8,7 @@ export function movePlayer(player) {
       case "ArrowLeft":
         message = {
           command: "move",
-          direction: "left",
+          direction: "left"
         };
         break;
       case "ArrowUp":
@@ -70,6 +70,17 @@ export function movePlayer(player) {
   };
 }
 
+
+ // Define the player images for each direction
+ const playerImages = {
+  up: "/static/images/playerUpward1.png",
+  down: "/static/images/player1.png",
+  left: "/static/images/playerLeft1.png",
+  right: "/static/images/playerRight1.png",
+};
+
+const playerClassPrefix = "player";
+
 // hardcoded for player 1
 function updatePlayerPosition(player) {
   console.log("player: ", player);
@@ -82,22 +93,75 @@ function updatePlayerPosition(player) {
     let playerPosition = playerPositions[0];
     console.log(playerPosition);
     playerPosition.classList.remove(`player-${player.PlayerID}`);
+    playerPosition.classList.remove("player-up");
+    playerPosition.classList.remove("player-down");
+    playerPosition.classList.remove("player-left");
+    playerPosition.classList.remove("player-right");
+    
     //remove powerup classes in case you picked one up
     playerPosition.classList.remove("speedy");
     playerPosition.classList.remove("bombAmountIncrease");
     playerPosition.classList.remove("bombRangeIncrease");
     playerPosition.classList.add("cell");
+    // Remove the previous player image from the cell
+    let previousPlayerImage = playerPosition.querySelector("img");
+    if (previousPlayerImage) {
+      playerPosition.removeChild(previousPlayerImage);
+    }
   }
 
-  // get the new player position
+  // Get the new player position
   console.log(player.GridPosition);
-  let newPlayerPosition = document.getElementById(
-    `cell-${player.GridPosition[0]}-${player.GridPosition[1]}`
-  );
-  // replace the player position
-  newPlayerPosition.classList.remove("cell");
-  newPlayerPosition.classList.add(`player-${player.PlayerID}`);
+  
+  // Add a check to ensure that player.GridPosition is defined and not empty
+  if (player.GridPosition && player.GridPosition.length > 0) {
+    let newPlayerPosition = document.getElementById(
+      `cell-${player.GridPosition[0]}-${player.GridPosition[1]}`
+    );
+
+    // Determine the player class based on the direction
+    let direction = "down"; // Default player direction for moving downwards
+    switch (player.Direction) {
+      case "up":
+        direction = "up";
+        break;
+      case "down":
+        direction = "down";
+        break;
+      case "left":
+        direction = "left";
+        break;
+      case "right":
+        direction = "right";
+        break;
+      default:
+        direction = "down"; // Default to "down" if the direction is unknown
+        break;
+    }
+
+    // Set the CSS class for the new player position
+    newPlayerPosition.classList.add(`${playerClassPrefix}`);
+    newPlayerPosition.classList.add(`player-${direction}`);
+
+    // Add the player image for the new direction
+    let playerImg = document.createElement("img");
+    playerImg.src = playerImages[direction];
+    playerImg.classList.add(`${playerClassPrefix}-image`);
+    newPlayerPosition.appendChild(playerImg);
+
+    //remove the img after the player has moved
+    setTimeout(() => {
+      newPlayerPosition.removeChild(playerImg);
+    }
+    , 700);
+  }
 }
+
+
+
+
+
+
 
 function updateBombPlacement(bomb) {
   console.log("bomb: ", bomb);
