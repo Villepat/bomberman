@@ -6,24 +6,28 @@ export function movePlayer(player) {
   document.addEventListener("keydown", function (event) {
     switch (event.code) {
       case "ArrowLeft":
+      case "KeyA":
         message = {
           command: "move",
           direction: "left",
         };
         break;
       case "ArrowUp":
+      case "KeyW":
         message = {
           command: "move",
           direction: "up",
         };
         break;
       case "ArrowRight":
+      case "KeyD":
         message = {
           command: "move",
           direction: "right",
         };
         break;
       case "ArrowDown":
+      case "KeyS":
         //send info through websocket
         message = {
           command: "move",
@@ -180,6 +184,12 @@ function updateExplosion(explosion) {
 
       if (explodedCell.classList.contains("brick")) {
         explodedCell.classList.remove("brick");
+      }
+
+      if (explodedCell.classList.contains("edge") || explodedCell.classList.contains("steel")) {
+        // If the cell is an edge or steel, return early
+        return;
+      }
 
         // Create an img element for the explosion image
         const explosionImg = document.createElement("img");
@@ -243,14 +253,12 @@ function updateExplosion(explosion) {
           default:
             break;
         }
-      } else {
-        // If the cell is not a brick, just apply the regular explosion animation
+        // If the cell is not a brick, just apply the regular explosion animation  
         explodedCell.classList.add("explosion");
         setTimeout(() => {
           explodedCell.classList.remove("explosion");
           explodedCell.classList.add("cell");
         }, 500);
-      }
     });
   }
 }
