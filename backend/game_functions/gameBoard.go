@@ -2,6 +2,7 @@ package game_functions
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"math/rand"
 )
@@ -44,6 +45,9 @@ func GenerateGameBoard() ([19][19]int, []byte, error) {
 		return gameBoard, jsonmap, err
 	}
 
+	log.Println("----------------Game board generated-----------------")
+	printBoard(gameBoard)
+
 	return gameBoard, jsonmap, nil
 }
 
@@ -82,5 +86,17 @@ func GetStartingPosition(n int) [2]int {
 		return [2]int{17, 17}
 	default:
 		return [2]int{0, 0}
+	}
+}
+
+func printBoard(board [19][19]int) {
+	// Start printing from the last row to the first
+	for i := len(board) - 1; i >= 0; i-- {
+		row := board[i]
+		for _, cell := range row {
+			// Each cell is printed with a fixed width of 3 for better alignment
+			fmt.Printf("%3d", cell)
+		}
+		fmt.Println() // Move to the next line after printing each row
 	}
 }

@@ -205,6 +205,7 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 	//Get the player from the map
 	player := game_functions.Players[playerID]
 
+
 	speed := player.Speed
 	lastMove := player.LastMove
 	//call isAllowedToMove to check if the player is allowed to move
@@ -212,6 +213,7 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		fmt.Println("Player is not allowed to move yet")
 		return gameGrid
 	}
+
 
 	//Change the player's direction
 	player.Direction = direction
@@ -368,7 +370,7 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 		return
 	}
 	// Check if the player is on a bomb
-	if gameGrid[player.GridPosition[0]][player.GridPosition[1]] == 69 {
+	if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 69 {
 		log.Println("Player is on a bomb")
 		defer gridMutex.Unlock()
 		return
@@ -378,7 +380,7 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 	log.Println("Bomb range: ", bombRange)
 
 	// Place a bomb on the game board
-	gameGrid[player.GridPosition[0]][player.GridPosition[1]] = 69
+	gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 69
 	log.Println("Bomb placed at: ", player.GridPosition)
 	// Update the player in the map
 	player.Bombs--
@@ -441,8 +443,10 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	gridMutex.Lock()
 	log.Println("---------------------BOOOOOOOOOOOOOOOOOOOOM---------------------")
+	printBoard(gameGrid)
+	log.Println("Bomb exploded at: ", x, y)
 	// Clean the bomb from gameGrid
-	gameGrid[x][y] = 0
+	gameGrid[y][x] = 0
 
 	// The explosion's affected area is the bomb range in each direction.
 	//NOTE: unless there is steel in the way of the explosion, then the explosion stops there.
@@ -481,7 +485,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	gridMutex.Unlock()
 
 	// Log the state of game grid after explosion
-	log.Println("Game grid after explosion: ", gameGrid)
+	printBoard(gameGrid)
 	log.Println("Affected cells: ", affectedCells)
 
 	explosionMsg := Msg{
@@ -501,5 +505,17 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 		if err != nil {
 			log.Println(err)
 		}
+	}
+}
+
+func printBoard(board *[19][19]int) {
+	// Start printing from the last row to the first
+	for i := len(board) - 1; i >= 0; i-- {
+		row := board[i]
+		for _, cell := range row {
+			// Each cell is printed with a fixed width of 3 for better alignment
+			fmt.Printf("%3d", cell)
+		}
+		fmt.Println() // Move to the next line after printing each row
 	}
 }
