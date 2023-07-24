@@ -4,10 +4,14 @@ export function movePlayer(player) {
   let message;
 
   document.addEventListener("keydown", function (event) {
-     // Prevent scrolling for Arrow keys and Space
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
-    event.preventDefault();
-  }
+    // Prevent scrolling for Arrow keys and Space
+    if (
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(
+        event.code
+      )
+    ) {
+      event.preventDefault();
+    }
     switch (event.code) {
       case "ArrowLeft":
       case "KeyA":
@@ -191,109 +195,118 @@ function updateExplosion(explosion) {
         explodedCell.classList.remove("brick");
       }
 
-      if (explodedCell.classList.contains("edge") || explodedCell.classList.contains("steel")) {
+      if (
+        explodedCell.classList.contains("edge") ||
+        explodedCell.classList.contains("steel")
+      ) {
         // If the cell is an edge or steel, return early
         return;
       }
 
-        // Create an img element for the explosion image
-        const explosionImg = document.createElement("img");
-        explosionImg.src = "/static/images/explosion1.png";
-        explosionImg.classList.add("explosion-image");
-        explodedCell.appendChild(explosionImg);
+      // Create an img element for the explosion image
+      const explosionImg = document.createElement("img");
+      explosionImg.src = "/static/images/explosion1.png";
+      explosionImg.classList.add("explosion-image");
+      explodedCell.appendChild(explosionImg);
 
-        let isExploding = false;
-        const explosionImages = [
-          "/static/images/explosion1.png",
-          "/static/images/explosion2.png",
-          "/static/images/explosion3.png",
-        ];
-        let index = 0;
+      let isExploding = false;
+      const explosionImages = [
+        "/static/images/explosion1.png",
+        "/static/images/explosion2.png",
+        "/static/images/explosion3.png",
+      ];
+      let index = 0;
 
-        const switchImage = () => {
-          isExploding = !isExploding;
-          explosionImg.src = isExploding
-            ? explosionImages[index]
-            : "/static/images/explosion1.png";
-          index++;
+      const switchImage = () => {
+        isExploding = !isExploding;
+        explosionImg.src = isExploding
+          ? explosionImages[index]
+          : "/static/images/explosion1.png";
+        index++;
 
-          if (index < explosionImages.length) {
-            setTimeout(switchImage, 200);
-          } else {
-            setTimeout(() => {
-              explodedCell.removeChild(explosionImg);
-              explodedCell.classList.remove("explosion");
-              explodedCell.classList.add("cell");
-            }, 500);
-          }
-        };
-        console.log("exploded cell: ", cell);
-        console.log(
-          "exploded cell value: ",
-          explosion.GameGrid[cell[1]][cell[0]]
-        );
-        setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
-        //depending on the value in the GameGrid we can determine what type of powerup to spawn
-
-        //switch case that checks the value of the cell in the GameGrid and assigns the correct class if it is a powerup
-        switch (explosion.GameGrid[cell[1]][cell[0]]) {
-          case 8:
-            //assign class ".speedy"
-            explodedCell.classList.remove("cell");
-            explodedCell.classList.add("speedy");
-            console.log("speedy");
-            break;
-          case 9:
-            //assign class ".bombAmountIncrase"
-            explodedCell.classList.add("bombAmountIncrease");
-            explodedCell.classList.remove("cell");
-            console.log("bombAmountIncrease");
-            break;
-          case 10:
-            //assign class ".bombRangeIncrease"
-            explodedCell.classList.add("bombRangeIncrease");
-            explodedCell.classList.remove("cell");
-            console.log("bombRangeIncrease");
-            break;
-          default:
-            break;
+        if (index < explosionImages.length) {
+          setTimeout(switchImage, 200);
+        } else {
+          setTimeout(() => {
+            explodedCell.removeChild(explosionImg);
+            explodedCell.classList.remove("explosion");
+            explodedCell.classList.add("cell");
+          }, 500);
         }
-        // If the cell is not a brick, just apply the regular explosion animation  
-        explodedCell.classList.add("explosion");
-        setTimeout(() => {
-          explodedCell.classList.remove("explosion");
-          explodedCell.classList.add("cell");
-        }, 500);
+      };
+      console.log("exploded cell: ", cell);
+      console.log(
+        "exploded cell value: ",
+        explosion.GameGrid[cell[1]][cell[0]]
+      );
+      setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
+      //depending on the value in the GameGrid we can determine what type of powerup to spawn
+
+      //switch case that checks the value of the cell in the GameGrid and assigns the correct class if it is a powerup
+      switch (explosion.GameGrid[cell[1]][cell[0]]) {
+        case 8:
+          //assign class ".speedy"
+          explodedCell.classList.remove("cell");
+          explodedCell.classList.add("speedy");
+          console.log("speedy");
+          break;
+        case 9:
+          //assign class ".bombAmountIncrase"
+          explodedCell.classList.add("bombAmountIncrease");
+          explodedCell.classList.remove("cell");
+          console.log("bombAmountIncrease");
+          break;
+        case 10:
+          //assign class ".bombRangeIncrease"
+          explodedCell.classList.add("bombRangeIncrease");
+          explodedCell.classList.remove("cell");
+          console.log("bombRangeIncrease");
+          break;
+        default:
+          break;
+      }
+      // If the cell is not a brick, just apply the regular explosion animation
+      explodedCell.classList.add("explosion");
+      setTimeout(() => {
+        explodedCell.classList.remove("explosion");
+        explodedCell.classList.add("cell");
+      }, 500);
     });
   }
 }
 
 // function to remove a life from the player if they get hit by an explosion
 function updateLife(player) {
-  // set the player lives to the number of lives they have
-
-  console.log("removeLife function called");
-  // Find the player's life element
-  console.log("playerID: ", player.PlayerID);
-  const playerLives = document.getElementById(`player${player.PlayerID}-lives`);
-  // get the amount of children in the player's life element
+  console.log("updateLife function called");
+  const playerID = player.PlayerID;
+  const playerLives = document.getElementById(`player${playerID}-lives`);
   const playerLivesCount = playerLives.childElementCount;
 
   if (playerLivesCount > player.Lives) {
-    // Remove the last child of the player's life element
-    const lastHeart = playerLives.querySelector('.heart:last-child');
-
+    const lastHeart = playerLives.querySelector(".heart:last-child");
     if (lastHeart) {
       playerLives.removeChild(lastHeart);
     }
     if (player.Lives <= 0) {
       console.log("player died");
-      let playerEl = document.querySelectorAll('.player-' + player.PlayerID)
-      // remove player from board
+      let playerEl = document.querySelectorAll(".player-" + playerID);
       playerEl.forEach((el) => {
-        el.classList.remove('player-' + player.PlayerID);
-        el.classList.add('cell');
+        el.classList.remove("player-" + playerID);
+        el.classList.add("cell");
       });
+    } else {
+      // Apply blinking effect to player model
+      let playerEl = document.querySelectorAll(".player-" + playerID);
+      playerEl.forEach((el) => {
+        el.classList.add("blink");
+      });
+
+      // Remove the blinking effect after a few seconds
+      setTimeout(() => {
+        playerEl.forEach((el) => {
+          el.classList.remove("blink");
+        });
+      }, 2000); // Adjust the duration of the blinking effect as needed (in milliseconds)
     }
   }
 }

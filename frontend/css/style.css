@@ -7,8 +7,8 @@
     background-color: #ddd;
     padding: 5px;
   } */
-  
-  /* Styles for the individual cells */
+
+/* Styles for the individual cells */
 /* .cell {
     background-color: #fff;
     border: 1px solid #aaa;
@@ -19,19 +19,19 @@
   }
    */
 
-  body {
-    background-color: #02282a;
-    font-family: Arial, Helvetica, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
+body {
+  background-color: #02282a;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
 
-  h1 {
-    text-align: center;
-    color: rgb(40, 176, 146);
-    font-size: 40px;
-    margin-top: 20px;
-  }
+h1 {
+  text-align: center;
+  color: rgb(40, 176, 146);
+  font-size: 40px;
+  margin-top: 20px;
+}
 .edge {
   color: black;
 }
@@ -94,7 +94,7 @@
   height: 50px;
 }
 
-.bomb  {
+.bomb {
   width: 50px;
   height: 50px;
 }
@@ -102,4 +102,21 @@
 .explosion-image {
   width: 50px;
   height: 50px;
+}
+
+/* CSS for blinking effect */
+.blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
