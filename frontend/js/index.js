@@ -37,7 +37,7 @@ if (startButton) {
     //window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
     initializeGame();
     setTimeout(function () {
-      movePlayer();
+      requestAnimationFrame(movePlayer);
     }, 1000);
   });
 }

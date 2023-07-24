@@ -93,12 +93,16 @@ func reader(conn *websocket.Conn) {
 			log.Println("message: ", msg)
 			log.Println("message command: ", msg.Command)
 			log.Println("message text: ", msg.Direction)
-			if msg.Command == "move" {
-				log.Println("move command received")
-				gameGrid = MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
-			} else if msg.Command == "place-bomb" {
-				log.Println("place-bomb command received")
-				PlaceBomb(&gameGrid, Connections[conn].UserID)
+
+			palyer := Connections[conn].UserID
+			if game_functions.Players[palyer].Lives != 0 {
+				if msg.Command == "move" {
+					log.Println("move command received")
+					gameGrid = MovePlayer(gameGrid, Connections[conn].UserID, msg.Direction)
+				} else if msg.Command == "place-bomb" {
+					log.Println("place-bomb command received")
+					PlaceBomb(&gameGrid, Connections[conn].UserID)
+				}
 			}
 		}
 	}
