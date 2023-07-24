@@ -64,6 +64,7 @@ export function movePlayer(player) {
     } else if (message.type === "player") {
       console.log("player received");
       updatePlayerPosition(message.data);
+      updateLife(message.data);
     } else if (message.type === "bomb") {
       console.log("bomb received");
       updateBombPlacement(message.data);
@@ -260,5 +261,35 @@ function updateExplosion(explosion) {
           explodedCell.classList.add("cell");
         }, 500);
     });
+  }
+}
+
+// function to remove a life from the player if they get hit by an explosion
+function updateLife(player) {
+  // set the player lives to the number of lives they have
+
+  console.log("removeLife function called");
+  // Find the player's life element
+  console.log("playerID: ", player.PlayerID);
+  const playerLives = document.getElementById(`player${player.PlayerID}-lives`);
+  // get the amount of children in the player's life element
+  const playerLivesCount = playerLives.childElementCount;
+
+  if (playerLivesCount > player.Lives) {
+    // Remove the last child of the player's life element
+    const lastHeart = playerLives.querySelector('.heart:last-child');
+
+    if (lastHeart) {
+      playerLives.removeChild(lastHeart);
+    }
+    if (player.Lives <= 0) {
+      console.log("player died");
+      let playerEl = document.querySelectorAll('.player-' + player.PlayerID)
+      // remove player from board
+      playerEl.forEach((el) => {
+        el.classList.remove('player-' + player.PlayerID);
+        el.classList.add('cell');
+      });
+    }
   }
 }

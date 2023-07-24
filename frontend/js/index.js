@@ -33,9 +33,9 @@ if (window.location.pathname === "/") {
 let startButton = document.getElementById("start-button");
 if (startButton) {
   // add an onClick event listener to the start button
-  startButton.addEventListener("click", async function () {
+  startButton.addEventListener("click", function () {
     //window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
-    await initializeGame();
+    initializeGame();
     setTimeout(function () {
       movePlayer();
     }, 1000);
