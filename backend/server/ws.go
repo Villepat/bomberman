@@ -518,16 +518,25 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 		}
 	}
 
-	playerMsg := Msg{
-		Type: "player",
-		Data: game_functions.Players,
-	}
+	if len(affectedPlayers) > 0 {
+		for _, playerID := range affectedPlayers {
+			affectedPlayer, exists := game_functions.Players[playerID]
+			if exists {
+				playerMsg := Msg{
+					Type: "player",
+					Data: affectedPlayer,
+				}
 
-	//send the updated players to all of the clients
-	for _, conn := range Connections {
-		err := conn.Connection.WriteJSON(playerMsg)
-		if err != nil {
-			log.Println(err)
+				log.Println(playerMsg)
+
+				//send the updated players to all of the clients
+				for _, conn := range Connections {
+					err := conn.Connection.WriteJSON(playerMsg)
+					if err != nil {
+						log.Println(err)
+					}
+				}
+			}
 		}
 	}
 }
