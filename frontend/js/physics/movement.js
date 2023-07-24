@@ -4,6 +4,10 @@ export function movePlayer(player) {
   let message;
 
   document.addEventListener("keydown", function (event) {
+     // Prevent scrolling for Arrow keys and Space
+  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
+    event.preventDefault();
+  }
     switch (event.code) {
       case "ArrowLeft":
       case "KeyA":
