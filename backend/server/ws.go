@@ -37,6 +37,9 @@ var ConnectionsByName = make(map[string]*websocket.Conn)
 type Message struct {
 	Command   string `json:"command"`
 	Direction string `json:"direction"`
+	X         int    `json:"x"`
+	Y         int    `json:"y"`
+	ID        int    `json:"id"`
 	Timestamp string
 }
 
@@ -79,9 +82,6 @@ func reader(conn *websocket.Conn) {
 			ConnectionsByName[conn.Username] = conn.Connection
 		}
 		log.Println("message received: ")
-		log.Println("player name: ", Connections[conn].Username)
-		log.Println("player id: ", Connections[conn].UserID)
-		log.Println("messageType: ", messageType)
 		log.Println(string(p))
 		if messageType == 1 {
 			// get the value of the message
@@ -93,6 +93,11 @@ func reader(conn *websocket.Conn) {
 			log.Println("message: ", msg)
 			log.Println("message command: ", msg.Command)
 			log.Println("message text: ", msg.Direction)
+			if msg.Command == "playerPosition" {
+				log.Println("HAHAXD")
+				log.Println("message: ", msg)
+				assignPosition(&game_functions.Players, msg.X, msg.Y, msg.ID)
+			}
 
 			palyer := Connections[conn].UserID
 			if game_functions.Players[palyer].Lives != 0 {
@@ -106,6 +111,19 @@ func reader(conn *websocket.Conn) {
 			}
 		}
 	}
+}
+
+func assignPosition(players *map[int]game_functions.Player, x int, y int, id int) {
+	player, exists := (*players)[id]
+	if !exists {
+		// Handle error or create a new player
+		log.Println("player does not exist")
+		return
+	}
+	player.Left = x
+	player.Top = y
+	(*players)[id] = player
+	log.Println("player: ", player)
 }
 
 // function to set up the websocket endpoint
