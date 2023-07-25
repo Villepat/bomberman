@@ -47,9 +47,16 @@ async function buildBaseGrid(gameBoard) {
             background-size: cover;
             background-image: url("/static/images/brick2.png");
         }
-        .player-1 {
+        #player-1 {
             background-image: url("/static/images/player1.png");
             background-size: cover;
+            top: 1037px;
+            left: 487px;
+            position: absolute;
+            z-index: 1;
+            width: 50px;
+            height: 50px;
+            transition: left 0.3s ease, top 0.3s ease;
         }
         .player-2 {
             background-image: url("/static/images/player2.png");
@@ -89,7 +96,7 @@ async function buildBaseGrid(gameBoard) {
           cell.classList.add("cell", "edge");
           break;
         case 4:
-          cell.classList.add("cell", `starting-cell-1`, `player-1`);
+          cell.classList.add("cell", `starting-cell-1`);
           break;
         case 5:
           cell.classList.add("cell", `starting-cell-4`, `player-4`);
@@ -109,6 +116,9 @@ async function buildBaseGrid(gameBoard) {
       document.getElementById("game-board").appendChild(cell);
     }
   }
+  let player1 = document.createElement("div");
+  player1.setAttribute("id", "player-1");
+  document.getElementById("game-board").appendChild(player1);
 }
 
 export { buildBaseGrid };
