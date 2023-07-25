@@ -24,6 +24,8 @@ type Player struct {
 	GridPosition  [2]int
 	PixelPosition [2]int
 	LastMove      time.Time
+	Left          int
+	Top           int
 }
 
 // Players map contains all players in the game

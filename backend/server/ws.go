@@ -149,11 +149,16 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		Bombs:     1000000000,
 		BombRange: 1,
 		Direction: "down",
+		Left:      0,
+		Top:       0,
 	}
 	switch playerID {
 	case 1:
 		player.GridPosition = [2]int{1, 1}
 		player.PixelPosition = [2]int{51, 51}
+		player.Left = 487
+		player.Top = 1037
+
 	case 2:
 		player.GridPosition = [2]int{17, 17}
 		player.PixelPosition = [2]int{51, 819}
@@ -225,10 +230,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 	switch direction {
 	case "up":
 		if player.GridPosition[1] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]+1) {
+			player.Direction = "none"
 			break
 		}
 		player.GridPosition[1]++
 		player.PixelPosition[1] += 48
+		player.Top -= 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -245,10 +252,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		player.LastMove = time.Now()
 	case "down":
 		if player.GridPosition[1] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]-1) {
+			player.Direction = "none"
 			break
 		}
 		player.GridPosition[1]--
 		player.PixelPosition[1] -= 48
+		player.Top += 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -265,10 +274,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		player.LastMove = time.Now()
 	case "left":
 		if player.GridPosition[0] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]-1, player.GridPosition[1]) {
+			player.Direction = "none"
 			break
 		}
 		player.GridPosition[0]--
 		player.PixelPosition[0] -= 48
+		player.Left -= 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -285,10 +296,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		player.LastMove = time.Now()
 	case "right":
 		if player.GridPosition[0] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]+1, player.GridPosition[1]) {
+			player.Direction = "none"
 			break
 		}
 		player.GridPosition[0]++
 		player.PixelPosition[0] += 48
+		player.Left += 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -414,6 +427,8 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 	}()
 
 	defer gridMutex.Unlock()
+
+	player.Direction = "none"
 
 	playerMsg := Msg{
 		Type: "player",
