@@ -1,7 +1,41 @@
 // File for functions that has to do with moving a player
+let adjustment = 0;
+let width = window.innerWidth;
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
 export function movePlayer(player) {
   console.log("movePlayer function called");
+  console.log(width);
   let message;
+  const handleResize = function () {
+    console.log("resize event");
+    console.log(width);
+    console.log(window.innerWidth);
+    adjustment = window.innerWidth - width;
+    let player1 = document.getElementById("player-1");
+    console.log(player1.style.left);
+    console.log(adjustment);
+    adjustment = adjustment / 2;
+
+    width = window.innerWidth;
+    // Update players' positions
+    let players = document.getElementsByClassName("player");
+    for (let i = 0; i < players.length; i++) {
+      let player = players[i];
+      let playerLeft = parseFloat(player.style.left);
+      let newLeft = playerLeft + adjustment;
+      player.style.left = `${newLeft}px`;
+    }
+    console.log(player1.style.left);
+  };
+
+  window.addEventListener("resize", debounce(handleResize, 200)); // 200ms delay
 
   document.addEventListener("keydown", function (event) {
     // Prevent scrolling for Arrow keys and Space
@@ -104,7 +138,7 @@ function updatePlayerPosition(player) {
     playerPosition.classList.add("cell");
   }
   let playerxd = document.getElementById(`player-${player.PlayerID}`);
-  playerxd.style.left = `${player.Left}px`;
+  playerxd.style.left = `${player.Left + adjustment}px`;
   playerxd.style.top = `${player.Top}px`;
 }
 
