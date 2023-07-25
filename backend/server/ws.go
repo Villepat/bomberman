@@ -227,6 +227,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		if player.GridPosition[1] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]+1) {
 			break
 		}
+		//update the starting position in gamegrid to 0 (remove player id from starting point)
+		//we also check if a bomb has been planted, in this case the cell value stays the same to block player from walking over it
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] != 69 {
+			gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+		}
+
 		player.GridPosition[1]++
 		player.PixelPosition[1] += 48
 
@@ -247,6 +253,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		if player.GridPosition[1] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0], player.GridPosition[1]-1) {
 			break
 		}
+		//update the starting position in gamegrid to 0 (remove player id from starting point)
+		//we also check if a bomb has been planted, in this case the cell value stays the same to block player from walking over it
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] != 69 {
+			gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+		}
+
 		player.GridPosition[1]--
 		player.PixelPosition[1] -= 48
 
@@ -267,6 +279,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		if player.GridPosition[0] == 1 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]-1, player.GridPosition[1]) {
 			break
 		}
+		//update the starting position in gamegrid to 0 (remove player id from starting point)
+		//we also check if a bomb has been planted, in this case the cell value stays the same to block player from walking over it
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] != 69 {
+			gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+		}
+
 		player.GridPosition[0]--
 		player.PixelPosition[0] -= 48
 
@@ -287,6 +305,12 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		if player.GridPosition[0] == 17 || !game_functions.CheckBounds(gameGrid, player.GridPosition[0]+1, player.GridPosition[1]) {
 			break
 		}
+		//update the starting position in gamegrid to 0 (remove player id from starting point)
+		//we also check if a bomb has been planted, in this case the cell value stays the same to block player from walking over it
+		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] != 69 {
+			gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
+		}
+
 		player.GridPosition[0]++
 		player.PixelPosition[0] += 48
 
@@ -304,6 +328,7 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		//update LastMove
 		player.LastMove = time.Now()
 	}
+
 	log.Println("Player position after: ", player.GridPosition)
 	log.Println("Player pixel position after: ", player.PixelPosition)
 	//print player powerups

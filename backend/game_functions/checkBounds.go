@@ -14,5 +14,10 @@ func CheckBounds(gameBoard [19][19]int, y, x int) bool {
 		log.Println("Cell is occupied")
 		return false
 	}
+	//check if cell is occupied with 69, 4, 5, 6 or 7 (bomb/players) - if so, return false
+	if gameBoard[x][y] == 69 || gameBoard[x][y] == 4 || gameBoard[x][y] == 5 || gameBoard[x][y] == 6 || gameBoard[x][y] == 7 {
+		log.Println("Cell is occupied")
+		return false
+	}
 	return true
 }
