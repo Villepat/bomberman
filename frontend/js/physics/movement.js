@@ -100,7 +100,6 @@ export function movePlayer(player) {
   function animationLoop() {
     window.webSocketConnection.onmessage = function (event) {
       let message = JSON.parse(event.data);
-      console.log("message: ", message);
 
       if (message.type === "gameGrid") {
         console.log("gameGrid received");
@@ -123,24 +122,15 @@ export function movePlayer(player) {
 
 function updatePlayerPosition(player) {
   console.log("player: ", player);
-  let playerPositions = document.getElementsByClassName(
-    `player-${player.PlayerID}`
-  );
-
-  if (playerPositions.length > 0) {
-    let playerPosition = playerPositions[0];
-    console.log("playerposition", playerPosition);
-    // playerPosition.classList.remove(`player-${player.PlayerID}`);
-    //remove powerup classes in case you picked one up
-    playerPosition.classList.remove("speedy");
-    playerPosition.classList.remove("bombAmountIncrease");
-    playerPosition.classList.remove("bombRangeIncrease");
-    playerPosition.classList.add("cell");
-  }
 
   let playerxd = document.getElementById(`player-${player.PlayerID}`);
   let playerGridSquare = document.getElementById(
     `cell-${player.GridPosition[0]}-${player.GridPosition[1]}`
+  );
+  playerGridSquare.classList.remove(
+    "speedy",
+    "bombAmountIncrease",
+    "bombRangeIncrease"
   );
   let gridPost = playerGridSquare.getBoundingClientRect();
   playerxd.style.left = `${gridPost.left}px`;
@@ -314,7 +304,6 @@ function updateExplosion(explosion) {
 function updateLife(player) {
   // set the player lives to the number of lives they have
 
-  console.log("removeLife function called");
   // Find the player's life element
   console.log("playerID: ", player.PlayerID);
   const playerLives = document.getElementById(`player${player.PlayerID}-lives`);
