@@ -164,7 +164,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		Name:      userconn.Username,
 		Speed:     1,
 		Lives:     3,
-		Bombs:     1000000000,
+		Bombs:     1,
 		BombRange: 1,
 		Direction: "down",
 		Left:      0,
@@ -263,11 +263,13 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			if player.Speed < 4 {
+			if player.Speed < 3 {
 				player.Speed++
 			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
-			player.Bombs++
+			if player.Bombs < 3 {
+				player.Bombs++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
 			if player.BombRange < 2 {
 				player.BombRange++
@@ -295,11 +297,13 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			if player.Speed < 4 {
+			if player.Speed < 3 {
 				player.Speed++
 			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
-			player.Bombs++
+			if player.Bombs < 3 {
+				player.Bombs++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
 			if player.BombRange < 2 {
 				player.BombRange++
@@ -327,11 +331,13 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			if player.Speed < 4 {
+			if player.Speed < 3 {
 				player.Speed++
 			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
-			player.Bombs++
+			if player.Bombs < 3 {
+				player.Bombs++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
 			if player.BombRange < 2 {
 				player.BombRange++
@@ -359,11 +365,13 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			if player.Speed < 4 {
+			if player.Speed < 3 {
 				player.Speed++
 			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
-			player.Bombs++
+			if player.Bombs < 3 {
+				player.Bombs++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
 			if player.BombRange < 2 {
 				player.BombRange++
@@ -439,7 +447,7 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 	player := game_functions.Players[playerID]
 	// CHANGE THIS TO THE CONCURRENT BOMB LIMIT!!!!!!!
 	if player.Bombs == 0 {
-		log.Println("Player has no bombs left")
+		log.Println("Bomb limit reached")
 		defer gridMutex.Unlock()
 		return
 	}
@@ -452,12 +460,12 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 	// Check the player's bomb range
 	bombRange := player.BombRange
 	log.Println("Bomb range: ", bombRange)
+	player.Bombs--
 
 	// Place a bomb on the game board
 	gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 69
 	log.Println("Bomb placed at: ", player.GridPosition)
 	// Update the player in the map
-	player.Bombs--
 	game_functions.Players[playerID] = player
 
 	log.Println("Game grid after bomb placement: ", gameGrid)
@@ -482,7 +490,7 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 	go func() {
 		timer := time.NewTimer(time.Duration(2) * time.Second)
 		<-timer.C
-		HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange)
+		HandleExplosion(gameGrid, player.GridPosition[0], player.GridPosition[1], bombRange, playerID)
 	}()
 
 	defer gridMutex.Unlock()
@@ -516,13 +524,17 @@ func PlaceBomb(gameGrid *[19][19]int, playerID int) {
 	}
 }
 
-func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
+func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int, playerID int) {
 	gridMutex.Lock()
 	log.Println("---------------------BOOOOOOOOOOOOOOOOOOOOM---------------------")
 	printBoard(gameGrid)
 	log.Println("Bomb exploded at: ", x, y)
 	// Clean the bomb from gameGrid
 	gameGrid[y][x] = 0
+
+	player := game_functions.Players[playerID]
+	player.Bombs++
+	game_functions.Players[playerID] = player
 
 	var explosionCells [][]int
 	var affectedCells [][]int
