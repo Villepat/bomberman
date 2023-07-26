@@ -513,6 +513,8 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	var affectedPlayers []int
 	rand.Seed(time.Now().UnixNano())
 
+	explosionCells = append(explosionCells, []int{x, y}) // CHECK IF THIS IS CORRECT
+
 	// Explosion to the right
 	for i := 1; i <= bombRange; i++ {
 		if x+i < 19 {

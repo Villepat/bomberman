@@ -143,7 +143,6 @@ function updateBombPlacement(bomb) {
     `cell-${bomb.GridPosition[0]}-${bomb.GridPosition[1]}`
   );
 
-  bombPosition.classList.remove("cell");
   bombPosition.classList.add("bomb");
 
   // Create an img element for the bomb image
@@ -167,44 +166,6 @@ function updateBombPlacement(bomb) {
   setTimeout(() => {
     bombPosition.removeChild(bombImg);
     bombPosition.classList.remove("bomb");
-    bombPosition.classList.add("cell");
-
-    // Create an img element for the first explosion image
-    let explosionImg1 = document.createElement("img");
-    explosionImg1.src = "/static/images/explosion1.png";
-    explosionImg1.classList.add("explosion-image");
-    bombPosition.appendChild(explosionImg1);
-
-    // Switch to the second explosion image after a short delay
-    setTimeout(() => {
-      // Remove the first explosion image
-      bombPosition.removeChild(explosionImg1);
-
-      // Create an img element for the second explosion image
-      let explosionImg2 = document.createElement("img");
-      explosionImg2.src = "/static/images/explosion2.png";
-      explosionImg2.classList.add("explosion-image");
-      bombPosition.appendChild(explosionImg2);
-
-      // Switch to the third explosion image after another short delay
-      setTimeout(() => {
-        // Remove the second explosion image
-        bombPosition.removeChild(explosionImg2);
-
-        // Create an img element for the third explosion image
-        let explosionImg3 = document.createElement("img");
-        explosionImg3.src = "/static/images/explosion3.png";
-        explosionImg3.classList.add("explosion-image");
-        bombPosition.appendChild(explosionImg3);
-
-        // Remove the third explosion image after another short delay
-        setTimeout(() => {
-          bombPosition.removeChild(explosionImg3);
-          // Add back the "cell" class to the cell
-          bombPosition.classList.add("cell");
-        }, 500); // Adjust this value as needed for the duration of the explosion3 image
-      }, 200); // Adjust this value as needed for the delay before the explosion3 image appears
-    }, 200); // Adjust this value as needed for the delay before the explosion2 image appears
   }, bomb.ExplosionTime || 2000); // Assuming the explosion time is 2 seconds (2000ms). Adjust this value as needed.
 }
 
@@ -223,16 +184,13 @@ function updateExplosion(explosion) {
     // Depending on the value in the GameGrid we can determine what type of powerup to spawn
     switch (explosion.GameGrid[cell[1]][cell[0]]) {
       case 8:
-        explodedCell.classList.remove("cell");
         explodedCell.classList.add("speedy");
         break;
       case 9:
         explodedCell.classList.add("bombAmountIncrease");
-        explodedCell.classList.remove("cell");
         break;
       case 10:
         explodedCell.classList.add("bombRangeIncrease");
-        explodedCell.classList.remove("cell");
         break;
       default:
         break;
