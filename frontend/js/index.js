@@ -6,24 +6,59 @@ if (window.location.pathname === "/") {
   // render the start page
   const startPage = render({
     tag: "div",
-    attrs: { class: "start-page" },
+    attrs: { class: "container" },
     children: [
       {
-        tag: "h1",
-        attrs: { class: "start-page__title" },
-        children: ["Welcome to Bomberman!"],
+        tag: "div",
+        attrs: { class: "rectangle" },
+        children: [],
       },
-      {
-        tag: "button",
-        attrs: {
-          class: "start-page__button",
-          id: "start-button",
-          type: "button",
-        },
-        children: ["Start Game"],
-      },
-    ],
-  });
+          {
+            tag: "h1",
+            attrs: { },
+            children: ["Welcome to the Bomberman!"],
+          },
+          {
+            tag: "div",
+            attrs: {},
+            children: [
+              {
+                tag: "p",
+                attrs: {},
+                children: ["Please enter your name:"],
+              },
+              {
+                tag: "input",
+                attrs: {class: "player-name-input", id: "player-name", value: "Player"},
+                children: ["Please enter your name:"],
+              },
+              {
+                tag: "button",
+                attrs: { id: "start-button"},
+                children: ["Start Game"],
+              },
+            ],
+          },
+          {
+            tag: "div",
+            attrs: {},
+            children: [
+              {
+                tag: "h2",
+                attrs: {},
+                children: ["How to play:"],
+              },
+              {
+                tag: "p",
+                attrs: {},
+                children: [
+                  "Use the arrow keys or WASD to move your player around the board. press the space bar to drop a bomb.",
+                ],
+              }
+            ]
+          }
+        ],
+      });
   let welcomeDiv = document.getElementById("welcome-message");
   welcomeDiv.appendChild(startPage);
 }
