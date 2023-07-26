@@ -19,13 +19,16 @@ async function initializeGame() {
   // remove the start button from the DOM
   let startButton = document.getElementById("start-button");
   startButton.remove();
+  let welcomeMessage = document.getElementById("welcome-message");
+  welcomeMessage.remove();
+
   // add a resign button to the DOM
   let resignButton = document.createElement("button");
   resignButton.setAttribute("id", "resign-button");
   resignButton.setAttribute("type", "button");
   resignButton.innerHTML = "Resign";
-  let welcomeDiv = document.getElementById("welcome-message");
-  welcomeDiv.appendChild(resignButton);
+  // let welcomeDiv = document.getElementById("welcome-message");
+  // welcomeDiv.appendChild(resignButton);
 
   // add an onClick event listener to the resign button
   resignButton.addEventListener("click", function () {
