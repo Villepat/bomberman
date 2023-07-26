@@ -14,7 +14,6 @@ async function buildBaseGrid(gameBoard) {
             display: grid;
             grid-template-columns: ${gridTemplate};
             grid-template-rows: ${gridTemplate};
-
             justify-content: center;
         }
         .cell {
