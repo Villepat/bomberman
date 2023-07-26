@@ -508,6 +508,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 	// Clean the bomb from gameGrid
 	gameGrid[y][x] = 0
 
+	var explosionCells [][]int
 	var affectedCells [][]int
 	var affectedPlayers []int
 	rand.Seed(time.Now().UnixNano())
@@ -518,7 +519,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 			if gameGrid[y][x+i] == 2 {
 				break
 			}
-			handleExplosionLogic(x+i, y, gameGrid, &affectedCells, &affectedPlayers)
+			handleExplosionLogic(x+i, y, gameGrid, &affectedCells, &affectedPlayers, &explosionCells)
 		}
 	}
 
@@ -528,7 +529,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 			if gameGrid[y][x-i] == 2 {
 				break
 			}
-			handleExplosionLogic(x-i, y, gameGrid, &affectedCells, &affectedPlayers)
+			handleExplosionLogic(x-i, y, gameGrid, &affectedCells, &affectedPlayers, &explosionCells)
 		}
 	}
 
@@ -538,7 +539,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 			if gameGrid[y+i][x] == 2 {
 				break
 			}
-			handleExplosionLogic(x, y+i, gameGrid, &affectedCells, &affectedPlayers)
+			handleExplosionLogic(x, y+i, gameGrid, &affectedCells, &affectedPlayers, &explosionCells)
 		}
 	}
 
@@ -548,7 +549,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 			if gameGrid[y-i][x] == 2 {
 				break
 			}
-			handleExplosionLogic(x, y-i, gameGrid, &affectedCells, &affectedPlayers)
+			handleExplosionLogic(x, y-i, gameGrid, &affectedCells, &affectedPlayers, &explosionCells)
 		}
 	}
 
@@ -565,10 +566,12 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 			GameGrid        *[19][19]int
 			AffectedCells   [][]int
 			AffectedPlayers []int
+			ExplosionCells  [][]int
 		}{
 			GameGrid:        gameGrid,
 			AffectedCells:   affectedCells,
 			AffectedPlayers: affectedPlayers,
+			ExplosionCells:  explosionCells,
 		},
 	}
 
@@ -604,7 +607,7 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int) {
 }
 
 // handleExplosionLogic is a helper function to manage the explosion logic at a given cell.
-func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[][]int, affectedPlayers *[]int) {
+func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[][]int, affectedPlayers *[]int, explosionCells *[][]int) {
 	if gameGrid[y][x] == 1 {
 		// 20% chance of a power up, power ups distributed evenly
 		if rand.Float32() < 0.6 {
@@ -615,6 +618,9 @@ func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[]
 			log.Println("Block destroyed at: ", x, y)
 		}
 		*affectedCells = append(*affectedCells, []int{x, y})
+		*explosionCells = append(*explosionCells, []int{x, y})
+	} else if gameGrid[y][x] == 0 {
+		*explosionCells = append(*explosionCells, []int{x, y})
 	}
 	for _, player := range game_functions.Players {
 		if player.GridPosition[0] == x && player.GridPosition[1] == y {

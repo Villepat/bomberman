@@ -7,8 +7,8 @@
     background-color: #ddd;
     padding: 5px;
   } */
-  
-  /* Styles for the individual cells */
+
+/* Styles for the individual cells */
 /* .cell {
     background-color: #fff;
     border: 1px solid #aaa;
@@ -19,92 +19,91 @@
   }
    */
 
-  body {
-    background-color: #02282a;
-    font-family: Arial, Helvetica, sans-serif;
-    margin: 0;
-    padding: 0;
-  }
-   /* Heading style */
-   h1 {
-    font-size: 48px;
-    color: white;
-    margin-top: 20px;
-  }
+body {
+  background-color: #02282a;
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+/* Heading style */
+h1 {
+  font-size: 48px;
+  color: white;
+  margin-top: 20px;
+}
 
-     /* Button style */
-     #start-button {
-      display: inline-block;
-      padding: 12px 24px;
-      margin-bottom: 20px;
-      font-size: 24px;
-      background-color: #007bff;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
+/* Button style */
+#start-button {
+  display: inline-block;
+  padding: 12px 24px;
+  margin-bottom: 20px;
+  font-size: 24px;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
 
-    #start-button:hover {
-      background-color: #0056b3;
-    }
+#start-button:hover {
+  background-color: #0056b3;
+}
 
+/* Border image */
+.rectangle {
+  position: absolute;
+  top: -50px; /* Adjust the top offset to position the rectangle border on top */
+  left: 50%;
+  transform: translateX(-50%); /* Center the rectangle horizontally */
+  /* Adjust the left offset to match the border width */
+  width: 800px; /* Adjust the width based on container size and border width */
+  height: 500px; /* Adjust the height based on container size and border width */
+  background-image: url("/frontend/images/brick1.png"); /* Updated path to the border image */
+  background-size: 50px 50px; /* Size each block as 50x50 pixels */
+  z-index: -1; /* Set a lower z-index to position the rectangle behind the container */
+}
 
-   /* Border image */
-   .rectangle {
-    position: absolute;
-    top: -50px; /* Adjust the top offset to position the rectangle border on top */
-    left: 50%;
-    transform: translateX(-50%); /* Center the rectangle horizontally */
-    /* Adjust the left offset to match the border width */
-    width: 800px; /* Adjust the width based on container size and border width */
-    height: 500px; /* Adjust the height based on container size and border width */
-    background-image: url("/frontend/images/brick1.png"); /* Updated path to the border image */
-    background-size: 50px 50px; /* Size each block as 50x50 pixels */
-    z-index: -1; /* Set a lower z-index to position the rectangle behind the container */
-  }
+.container {
+  text-align: center;
+  position: relative;
+  width: 700px; /* Adjust the width as needed */
+  height: 400px; /* Adjust the height as needed */
+  background-image: url("/frontend/images/grass.png"); /* Background color of the rectangle */
+  background-size: 25px 25px; /* Size each block as 50x50 pixels */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .container {
-    text-align: center;
-    position: relative;
-    width: 700px; /* Adjust the width as needed */
-    height: 400px; /* Adjust the height as needed */
-    background-image: url("/frontend/images/grass.png"); /* Background color of the rectangle */
-    background-size: 25px 25px; /* Size each block as 50x50 pixels */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: center;
-  }
+#welcome-message {
+  color: white;
+  font-size: 24px;
+  margin-top: 20px;
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
 
-  #welcome-message {
-    color: white;
-    font-size: 24px;
-    margin-top: 20px;
-    padding: 5px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
+.player-name-input {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  font-size: 24px;
+  padding: 5px;
+  border-radius: 5px;
+  border: 1px solid black;
+}
 
-  .player-name-input {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    font-size: 24px;
-    padding: 5px;
-    border-radius: 5px;
-    border: 1px solid black;
-  }
+body h2 {
+  color: white;
+}
 
-  body h2 {
-    color: white;
-  }
-  
-  body p {
-    color: white;
-  }
+body p {
+  color: white;
+}
 
 .edge {
   color: black;
@@ -168,7 +167,7 @@
   height: 50px;
 }
 
-.bomb  {
+.bomb {
   width: 50px;
   height: 50px;
 }
@@ -176,4 +175,6 @@
 .explosion-image {
   width: 50px;
   height: 50px;
+  max-width: 50px;
+  max-height: 50px;
 }

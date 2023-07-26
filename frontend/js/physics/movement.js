@@ -209,93 +209,88 @@ function updateBombPlacement(bomb) {
 }
 
 function updateExplosion(explosion) {
-  // console.log("explosion: ", explosion);
-  //console.log("affected cells: ", explosion.AffectedCells);
+  console.log("explosion: ", explosion);
+  console.log("affected cells: ", explosion.AffectedCells);
+
+  // Handles the explosion logic for a single cell, including board modifications
+  function explodeCell(cell) {
+    let explodedCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
+
+    if (explodedCell.classList.contains("brick")) {
+      explodedCell.classList.remove("brick");
+    }
+
+    // Depending on the value in the GameGrid we can determine what type of powerup to spawn
+    switch (explosion.GameGrid[cell[1]][cell[0]]) {
+      case 8:
+        explodedCell.classList.remove("cell");
+        explodedCell.classList.add("speedy");
+        break;
+      case 9:
+        explodedCell.classList.add("bombAmountIncrease");
+        explodedCell.classList.remove("cell");
+        break;
+      case 10:
+        explodedCell.classList.add("bombRangeIncrease");
+        explodedCell.classList.remove("cell");
+        break;
+      default:
+        break;
+    }
+  }
+
+  // Handles only the explosion animation for a cell
+  function animateExplosion(cell, explodedCell) {
+    // Create an img element for the explosion image
+    const explosionImg = document.createElement("img");
+    explosionImg.src = "/static/images/explosion1.png";
+    explosionImg.classList.add("explosion-image");
+    explodedCell.appendChild(explosionImg);
+
+    let isExploding = false;
+    const explosionImages = [
+      "/static/images/explosion1.png",
+      "/static/images/explosion2.png",
+      "/static/images/explosion3.png",
+    ];
+    let index = 0;
+
+    const switchImage = () => {
+      isExploding = !isExploding;
+      explosionImg.src = isExploding
+        ? explosionImages[index]
+        : "/static/images/explosion1.png";
+      index++;
+
+      if (index < explosionImages.length) {
+        setTimeout(switchImage, 200);
+      } else {
+        setTimeout(() => {
+          explodedCell.removeChild(explosionImg);
+          explodedCell.classList.remove("explosion");
+          explodedCell.classList.add("cell");
+        }, 500);
+      }
+    };
+
+    setTimeout(switchImage, 0); // Start the explosion animation immediately
+
+    // Apply the explosion animation
+    explodedCell.classList.add("explosion");
+    setTimeout(() => {
+      explodedCell.classList.remove("explosion");
+      explodedCell.classList.add("cell");
+    }, 500);
+  }
 
   if (explosion.AffectedCells && explosion.AffectedCells.length > 0) {
-    explosion.AffectedCells.forEach((cell) => {
-      let explodedCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
+    explosion.AffectedCells.forEach(explodeCell);
+  }
 
-      if (explodedCell.classList.contains("brick")) {
-        explodedCell.classList.remove("brick");
-      }
-
-      if (
-        explodedCell.classList.contains("edge") ||
-        explodedCell.classList.contains("steel")
-      ) {
-        // If the cell is an edge or steel, return early
-        return;
-      }
-
-      // Create an img element for the explosion image
-      const explosionImg = document.createElement("img");
-      explosionImg.src = "/static/images/explosion1.png";
-      explosionImg.classList.add("explosion-image");
-      explodedCell.appendChild(explosionImg);
-
-      let isExploding = false;
-      const explosionImages = [
-        "/static/images/explosion1.png",
-        "/static/images/explosion2.png",
-        "/static/images/explosion3.png",
-      ];
-      let index = 0;
-
-      const switchImage = () => {
-        isExploding = !isExploding;
-        explosionImg.src = isExploding
-          ? explosionImages[index]
-          : "/static/images/explosion1.png";
-        index++;
-
-        if (index < explosionImages.length) {
-          setTimeout(switchImage, 200);
-        } else {
-          setTimeout(() => {
-            explodedCell.removeChild(explosionImg);
-            explodedCell.classList.remove("explosion");
-            explodedCell.classList.add("cell");
-          }, 500);
-        }
-      };
-      console.log("exploded cell: ", cell);
-      console.log(
-        "exploded cell value: ",
-        explosion.GameGrid[cell[1]][cell[0]]
-      );
-      setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
-      //depending on the value in the GameGrid we can determine what type of powerup to spawn
-
-      //switch case that checks the value of the cell in the GameGrid and assigns the correct class if it is a powerup
-      switch (explosion.GameGrid[cell[1]][cell[0]]) {
-        case 8:
-          //assign class ".speedy"
-          explodedCell.classList.remove("cell");
-          explodedCell.classList.add("speedy");
-          console.log("speedy");
-          break;
-        case 9:
-          //assign class ".bombAmountIncrase"
-          explodedCell.classList.add("bombAmountIncrease");
-          explodedCell.classList.remove("cell");
-          console.log("bombAmountIncrease");
-          break;
-        case 10:
-          //assign class ".bombRangeIncrease"
-          explodedCell.classList.add("bombRangeIncrease");
-          explodedCell.classList.remove("cell");
-          console.log("bombRangeIncrease");
-          break;
-        default:
-          break;
-      }
-      // If the cell is not a brick, just apply the regular explosion animation
-      explodedCell.classList.add("explosion");
-      setTimeout(() => {
-        explodedCell.classList.remove("explosion");
-        explodedCell.classList.add("cell");
-      }, 500);
+  if (explosion.ExplosionCells && explosion.ExplosionCells.length > 0) {
+    explosion.ExplosionCells.forEach((cell) => {
+      const targetCell = document.getElementById(`cell-${cell[0]}-${cell[1]}`);
+      animateExplosion(cell, targetCell);
     });
   }
 }
