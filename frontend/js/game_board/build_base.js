@@ -48,7 +48,7 @@ async function buildBaseGrid(gameBoard) {
             background-image: url("/static/images/brick2.png");
         }
         #player-1 {
-            background-image: url("/static/images/player1.png");
+            background-image: url("/static/images/p1.png");
             background-size: cover;
             position: absolute;
             z-index: 1;

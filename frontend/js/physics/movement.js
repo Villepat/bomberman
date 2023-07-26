@@ -137,9 +137,14 @@ function updatePlayerPosition(player) {
     playerPosition.classList.remove("bombRangeIncrease");
     playerPosition.classList.add("cell");
   }
+
   let playerxd = document.getElementById(`player-${player.PlayerID}`);
-  playerxd.style.left = `${player.Left + adjustment}px`;
-  playerxd.style.top = `${player.Top}px`;
+  let playerGridSquare = document.getElementById(
+    `cell-${player.GridPosition[0]}-${player.GridPosition[1]}`
+  );
+  let gridPost = playerGridSquare.getBoundingClientRect();
+  playerxd.style.left = `${gridPost.left}px`;
+  playerxd.style.top = `${gridPost.top}px`;
 }
 
 function updateBombPlacement(bomb) {
