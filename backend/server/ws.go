@@ -263,11 +263,15 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			player.Speed++
+			if player.Speed < 4 {
+				player.Speed++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
 			player.Bombs++
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
-			player.BombRange++
+			if player.BombRange < 2 {
+				player.BombRange++
+			}
 		}
 		//update the value of gameGrid at player.GridPosition to 0
 		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
@@ -291,11 +295,15 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			player.Speed++
+			if player.Speed < 4 {
+				player.Speed++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
 			player.Bombs++
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
-			player.BombRange++
+			if player.BombRange < 2 {
+				player.BombRange++
+			}
 		}
 		//update the value of gameGrid at player.GridPosition to 0
 		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
@@ -319,11 +327,15 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			player.Speed++
+			if player.Speed < 4 {
+				player.Speed++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
 			player.Bombs++
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
-			player.BombRange++
+			if player.BombRange < 2 {
+				player.BombRange++
+			}
 		}
 		//update the value of gameGrid at player.GridPosition to 0
 		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
@@ -347,11 +359,15 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
-			player.Speed++
+			if player.Speed < 4 {
+				player.Speed++
+			}
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 9 {
 			player.Bombs++
 		} else if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 10 {
-			player.BombRange++
+			if player.BombRange < 2 {
+				player.BombRange++
+			}
 		}
 		//update the value of gameGrid at player.GridPosition to 0
 		gameGrid[player.GridPosition[1]][player.GridPosition[0]] = 0
