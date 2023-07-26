@@ -135,6 +135,34 @@ function updatePlayerPosition(player) {
   let gridPost = playerGridSquare.getBoundingClientRect();
   playerxd.style.left = `${gridPost.left}px`;
   playerxd.style.top = `${gridPost.top}px`;
+  // Determine the player class based on the direction
+  let direction = "down"; // Default player direction for moving downwards
+  switch (player.Direction) {
+    case "up":
+      direction = "up";
+      break;
+    case "down":
+      direction = "down";
+      break;
+    case "left":
+      direction = "left";
+      break;
+    case "right":
+      direction = "right";
+      break;
+    default:
+      direction = "down"; // Default to "down" if the direction is unknown
+      break;
+  }
+
+
+  //update the players background image based on the direction, player1 is down, playerLeft1 is left, playerRight1 is right, playerUpward1 is up (for player 1)
+  let playerImg = document.getElementById(`player-${player.PlayerID}`);
+  playerImg.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.png")`;
+
+  // Remove all previous direction classes and add the current direction class
+  playerxd.classList.remove("playerup", "playerdown", "playerleft", "playerright");
+  playerxd.classList.add(`player-${direction}`);
 }
 
 function updateBombPlacement(bomb) {

@@ -33,10 +33,10 @@ async function buildBaseGrid(gameBoard) {
           background-image: url("/static/images/brick.png");
         }
         .bombAmountIncrease {
-          background-image: url("/static/images/brick.png");
+          background-image: url("/static/images/powerup.png");
         }
         .bombRangeIncrease {
-          background-image: url("/static/images/brick.png");
+          background-image: url("/static/images/powerup.png");
         }
         .safe-zone {
             background-image: url("/static/images/grass.png");
@@ -48,7 +48,7 @@ async function buildBaseGrid(gameBoard) {
             background-image: url("/static/images/brick2.png");
         }
         #player-1 {
-            background-image: url("/static/images/p1.png");
+            background-image: url("/static/images/player1down.png");
             background-size: cover;
             position: absolute;
             z-index: 1;
