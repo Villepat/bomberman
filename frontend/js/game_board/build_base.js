@@ -1,4 +1,5 @@
 // File for building the base grid for the game board
+let playerAmount = 4;
 
 // Function to build the base grid for the game board
 async function buildBaseGrid(gameBoard) {
@@ -13,7 +14,6 @@ async function buildBaseGrid(gameBoard) {
             display: grid;
             grid-template-columns: ${gridTemplate};
             grid-template-rows: ${gridTemplate};
-
             justify-content: center;
         }
         .cell {
@@ -47,22 +47,41 @@ async function buildBaseGrid(gameBoard) {
             background-size: cover;
             background-image: url("/static/images/brick2.png");
         }
-        .player-1 {
-            background-image: url("/static/images/player1.png");
+        #player-1 {
+            background-image: url("/static/images/p1.png");
             background-size: cover;
+            position: absolute;
+            z-index: 1;
+            width: 50px;
+            height: 50px;
+            transition: left 0.3s ease, top 0.3s ease;
         }
-        .player-2 {
+        #player-2 {
             background-image: url("/static/images/player2.png");
             background-size: cover;
+            position: absolute;
+            z-index: 1;
+            width: 50px;
+            height: 50px;
+            transition: left 0.3s ease, top 0.3s ease;
         }
-        .player-3 {
+        #player-3 {
             background-image: url("/static/images/player3.png");
             background-size: cover;
+            z-index: 1;
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            transition: left 0.3s ease, top 0.3s ease;
         }
-        .player-4 {
+        #player-4 {
             background-image: url("/static/images/player4.png");
             background-size: cover;
             z-index: 1;
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            transition: left 0.3s ease, top 0.3s ease;
         }
     `;
 
@@ -89,16 +108,16 @@ async function buildBaseGrid(gameBoard) {
           cell.classList.add("cell", "edge");
           break;
         case 4:
-          cell.classList.add("cell", `starting-cell-1`, `player-1`);
+          cell.classList.add("cell", `starting-cell-1`);
           break;
         case 5:
-          cell.classList.add("cell", `starting-cell-4`, `player-4`);
+          cell.classList.add("cell", `starting-cell-4`);
           break;
         case 6:
-          cell.classList.add("cell", `starting-cell-3`, `player-3`);
+          cell.classList.add("cell", `starting-cell-3`);
           break;
         case 7:
-          cell.classList.add("cell", `starting-cell-2`, `player-2`);
+          cell.classList.add("cell", `starting-cell-2`);
           break;
         default:
           cell.classList.add("cell");
@@ -108,6 +127,17 @@ async function buildBaseGrid(gameBoard) {
       cell.setAttribute("id", `cell-${x}-${y}`);
       document.getElementById("game-board").appendChild(cell);
     }
+  }
+
+  for (let i = 1; i <= playerAmount; i++) {
+    let player = document.createElement("div");
+    player.setAttribute("id", `player-${i}`);
+    player.classList.add("player");
+    let playerStart = document.getElementsByClassName(`starting-cell-${i}`);
+    let startRect = playerStart[0].getBoundingClientRect();
+    player.style.top = `${startRect.top}px`;
+    player.style.left = `${startRect.left}px`;
+    document.getElementById("game-board").appendChild(player);
   }
 }
 

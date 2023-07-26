@@ -1,13 +1,51 @@
 // File for functions that has to do with moving a player
+let adjustment = 0;
+let width = window.innerWidth;
+
+function debounce(func, wait) {
+  let timeout;
+  return function (...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
 export function movePlayer(player) {
   console.log("movePlayer function called");
+  console.log(width);
   let message;
+  const handleResize = function () {
+    console.log("resize event");
+    console.log(width);
+    console.log(window.innerWidth);
+    adjustment = window.innerWidth - width;
+    let player1 = document.getElementById("player-1");
+    console.log(player1.style.left);
+    console.log(adjustment);
+    adjustment = adjustment / 2;
+
+    width = window.innerWidth;
+    // Update players' positions
+    let players = document.getElementsByClassName("player");
+    for (let i = 0; i < players.length; i++) {
+      let player = players[i];
+      let playerLeft = parseFloat(player.style.left);
+      let newLeft = playerLeft + adjustment;
+      player.style.left = `${newLeft}px`;
+    }
+    console.log(player1.style.left);
+  };
+
+  window.addEventListener("resize", debounce(handleResize, 200)); // 200ms delay
 
   document.addEventListener("keydown", function (event) {
-     // Prevent scrolling for Arrow keys and Space
-  if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(event.code)) {
-    event.preventDefault();
-  }
+    // Prevent scrolling for Arrow keys and Space
+    if (
+      ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(
+        event.code
+      )
+    ) {
+      event.preventDefault();
+    }
     switch (event.code) {
       case "ArrowLeft":
       case "KeyA":
@@ -59,38 +97,40 @@ export function movePlayer(player) {
     }
   });
 
-  window.webSocketConnection.onmessage = function (event) {
-    let message = JSON.parse(event.data);
-    console.log("message: ", message);
+  function animationLoop() {
+    window.webSocketConnection.onmessage = function (event) {
+      let message = JSON.parse(event.data);
+      console.log("message: ", message);
 
-    if (message.type === "gameGrid") {
-      console.log("gameGrid received");
-    } else if (message.type === "player") {
-      console.log("player received");
-      updatePlayerPosition(message.data);
-      updateLife(message.data);
-    } else if (message.type === "bomb") {
-      console.log("bomb received");
-      updateBombPlacement(message.data);
-    } else if (message.type === "explosion") {
-      console.log("explosion received");
-      updateExplosion(message.data);
-    }
-  };
+      if (message.type === "gameGrid") {
+        console.log("gameGrid received");
+      } else if (message.type === "player") {
+        console.log("player received");
+        updatePlayerPosition(message.data);
+        updateLife(message.data);
+      } else if (message.type === "bomb") {
+        console.log("bomb received");
+        updateBombPlacement(message.data);
+      } else if (message.type === "explosion") {
+        console.log("explosion received");
+        updateExplosion(message.data);
+      }
+    };
+    requestAnimationFrame(animationLoop);
+  }
+  animationLoop();
 }
 
-// hardcoded for player 1
 function updatePlayerPosition(player) {
   console.log("player: ", player);
   let playerPositions = document.getElementsByClassName(
     `player-${player.PlayerID}`
   );
 
-  // Assuming there is only one element with "player-1" class
   if (playerPositions.length > 0) {
     let playerPosition = playerPositions[0];
-    console.log(playerPosition);
-    playerPosition.classList.remove(`player-${player.PlayerID}`);
+    console.log("playerposition", playerPosition);
+    // playerPosition.classList.remove(`player-${player.PlayerID}`);
     //remove powerup classes in case you picked one up
     playerPosition.classList.remove("speedy");
     playerPosition.classList.remove("bombAmountIncrease");
@@ -98,14 +138,13 @@ function updatePlayerPosition(player) {
     playerPosition.classList.add("cell");
   }
 
-  // get the new player position
-  console.log(player.GridPosition);
-  let newPlayerPosition = document.getElementById(
+  let playerxd = document.getElementById(`player-${player.PlayerID}`);
+  let playerGridSquare = document.getElementById(
     `cell-${player.GridPosition[0]}-${player.GridPosition[1]}`
   );
-  // replace the player position
-  newPlayerPosition.classList.remove("cell");
-  newPlayerPosition.classList.add(`player-${player.PlayerID}`);
+  let gridPost = playerGridSquare.getBoundingClientRect();
+  playerxd.style.left = `${gridPost.left}px`;
+  playerxd.style.top = `${gridPost.top}px`;
 }
 
 function updateBombPlacement(bomb) {
@@ -191,79 +230,82 @@ function updateExplosion(explosion) {
         explodedCell.classList.remove("brick");
       }
 
-      if (explodedCell.classList.contains("edge") || explodedCell.classList.contains("steel")) {
+      if (
+        explodedCell.classList.contains("edge") ||
+        explodedCell.classList.contains("steel")
+      ) {
         // If the cell is an edge or steel, return early
         return;
       }
 
-        // Create an img element for the explosion image
-        const explosionImg = document.createElement("img");
-        explosionImg.src = "/static/images/explosion1.png";
-        explosionImg.classList.add("explosion-image");
-        explodedCell.appendChild(explosionImg);
+      // Create an img element for the explosion image
+      const explosionImg = document.createElement("img");
+      explosionImg.src = "/static/images/explosion1.png";
+      explosionImg.classList.add("explosion-image");
+      explodedCell.appendChild(explosionImg);
 
-        let isExploding = false;
-        const explosionImages = [
-          "/static/images/explosion1.png",
-          "/static/images/explosion2.png",
-          "/static/images/explosion3.png",
-        ];
-        let index = 0;
+      let isExploding = false;
+      const explosionImages = [
+        "/static/images/explosion1.png",
+        "/static/images/explosion2.png",
+        "/static/images/explosion3.png",
+      ];
+      let index = 0;
 
-        const switchImage = () => {
-          isExploding = !isExploding;
-          explosionImg.src = isExploding
-            ? explosionImages[index]
-            : "/static/images/explosion1.png";
-          index++;
+      const switchImage = () => {
+        isExploding = !isExploding;
+        explosionImg.src = isExploding
+          ? explosionImages[index]
+          : "/static/images/explosion1.png";
+        index++;
 
-          if (index < explosionImages.length) {
-            setTimeout(switchImage, 200);
-          } else {
-            setTimeout(() => {
-              explodedCell.removeChild(explosionImg);
-              explodedCell.classList.remove("explosion");
-              explodedCell.classList.add("cell");
-            }, 500);
-          }
-        };
-        console.log("exploded cell: ", cell);
-        console.log(
-          "exploded cell value: ",
-          explosion.GameGrid[cell[1]][cell[0]]
-        );
-        setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
-        //depending on the value in the GameGrid we can determine what type of powerup to spawn
-
-        //switch case that checks the value of the cell in the GameGrid and assigns the correct class if it is a powerup
-        switch (explosion.GameGrid[cell[1]][cell[0]]) {
-          case 8:
-            //assign class ".speedy"
-            explodedCell.classList.remove("cell");
-            explodedCell.classList.add("speedy");
-            console.log("speedy");
-            break;
-          case 9:
-            //assign class ".bombAmountIncrase"
-            explodedCell.classList.add("bombAmountIncrease");
-            explodedCell.classList.remove("cell");
-            console.log("bombAmountIncrease");
-            break;
-          case 10:
-            //assign class ".bombRangeIncrease"
-            explodedCell.classList.add("bombRangeIncrease");
-            explodedCell.classList.remove("cell");
-            console.log("bombRangeIncrease");
-            break;
-          default:
-            break;
+        if (index < explosionImages.length) {
+          setTimeout(switchImage, 200);
+        } else {
+          setTimeout(() => {
+            explodedCell.removeChild(explosionImg);
+            explodedCell.classList.remove("explosion");
+            explodedCell.classList.add("cell");
+          }, 500);
         }
-        // If the cell is not a brick, just apply the regular explosion animation  
-        explodedCell.classList.add("explosion");
-        setTimeout(() => {
-          explodedCell.classList.remove("explosion");
-          explodedCell.classList.add("cell");
-        }, 500);
+      };
+      console.log("exploded cell: ", cell);
+      console.log(
+        "exploded cell value: ",
+        explosion.GameGrid[cell[1]][cell[0]]
+      );
+      setTimeout(switchImage, 0); // Start the explosion animation immediately after removing the brick
+      //depending on the value in the GameGrid we can determine what type of powerup to spawn
+
+      //switch case that checks the value of the cell in the GameGrid and assigns the correct class if it is a powerup
+      switch (explosion.GameGrid[cell[1]][cell[0]]) {
+        case 8:
+          //assign class ".speedy"
+          explodedCell.classList.remove("cell");
+          explodedCell.classList.add("speedy");
+          console.log("speedy");
+          break;
+        case 9:
+          //assign class ".bombAmountIncrase"
+          explodedCell.classList.add("bombAmountIncrease");
+          explodedCell.classList.remove("cell");
+          console.log("bombAmountIncrease");
+          break;
+        case 10:
+          //assign class ".bombRangeIncrease"
+          explodedCell.classList.add("bombRangeIncrease");
+          explodedCell.classList.remove("cell");
+          console.log("bombRangeIncrease");
+          break;
+        default:
+          break;
+      }
+      // If the cell is not a brick, just apply the regular explosion animation
+      explodedCell.classList.add("explosion");
+      setTimeout(() => {
+        explodedCell.classList.remove("explosion");
+        explodedCell.classList.add("cell");
+      }, 500);
     });
   }
 }
@@ -281,18 +323,18 @@ function updateLife(player) {
 
   if (playerLivesCount > player.Lives) {
     // Remove the last child of the player's life element
-    const lastHeart = playerLives.querySelector('.heart:last-child');
+    const lastHeart = playerLives.querySelector(".heart:last-child");
 
     if (lastHeart) {
       playerLives.removeChild(lastHeart);
     }
     if (player.Lives <= 0) {
       console.log("player died");
-      let playerEl = document.querySelectorAll('.player-' + player.PlayerID)
+      let playerEl = document.querySelectorAll(".player-" + player.PlayerID);
       // remove player from board
       playerEl.forEach((el) => {
-        el.classList.remove('player-' + player.PlayerID);
-        el.classList.add('cell');
+        el.classList.remove("player-" + player.PlayerID);
+        el.classList.add("cell");
       });
     }
   }

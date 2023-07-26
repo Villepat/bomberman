@@ -15,36 +15,56 @@
 //
 import { buildBaseGrid } from "./build_base.js";
 
-
 async function initializeGame() {
-    // remove the start button from the DOM
-    let startButton = document.getElementById("start-button");
-    startButton.remove();
-    // add a resign button to the DOM
-    let resignButton = document.createElement("button");
-    resignButton.setAttribute("id", "resign-button");
-    resignButton.setAttribute("type", "button");
-    resignButton.innerHTML = "Resign";
-    let welcomeDiv = document.getElementById("welcome-message");
-    welcomeDiv.appendChild(resignButton);
+  // remove the start button from the DOM
+  let startButton = document.getElementById("start-button");
+  startButton.remove();
+  // add a resign button to the DOM
+  let resignButton = document.createElement("button");
+  resignButton.setAttribute("id", "resign-button");
+  resignButton.setAttribute("type", "button");
+  resignButton.innerHTML = "Resign";
+  let welcomeDiv = document.getElementById("welcome-message");
+  welcomeDiv.appendChild(resignButton);
 
-    
-    // add an onClick event listener to the resign button
-    resignButton.addEventListener("click", function () {
-        window.webSocketConnection.close();
-        window.location.reload();
-    });
-    // establish a websocket connection
-    window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
-    // send a message to the server
-    window.webSocketConnection.onopen = function (event) {
-        console.log("WebSocket is open now.");
-    };
-    // receive a message from the server
-    window.webSocketConnection.onmessage = async function (event) {
-        let gameBoard = JSON.parse(event.data);
-        await buildBaseGrid(gameBoard);
-    };
+  // add an onClick event listener to the resign button
+  resignButton.addEventListener("click", function () {
+    window.webSocketConnection.close();
+    window.location.reload();
+  });
+  // establish a websocket connection
+  window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
+  // send a message to the server
+  window.webSocketConnection.onopen = function (event) {
+    console.log("WebSocket is open now.");
+  };
+  // receive a message from the server
+  window.webSocketConnection.onmessage = async function (event) {
+    let gameBoard = JSON.parse(event.data);
+    await buildBaseGrid(gameBoard);
+    // send the startin positions of the players to the server
+    let players = document.getElementsByClassName("player");
+    for (let i = 0; i < players.length; i++) {
+      let playerRect = document
+        .getElementById(`player-${i + 1}`)
+        .getBoundingClientRect();
+      let playerPosition = {
+        id: i + 1,
+        x: playerRect.left,
+        y: playerRect.top,
+      };
+      let realX = Math.floor(playerPosition.x);
+      let realY = Math.floor(playerPosition.y);
+
+      let message = {
+        command: "playerPosition",
+        x: realX,
+        y: realY,
+        id: playerPosition.id,
+      };
+      window.webSocketConnection.send(JSON.stringify(message));
+    }
+  };
 }
 
 export { initializeGame };
