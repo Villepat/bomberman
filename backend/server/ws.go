@@ -75,6 +75,8 @@ func reader(conn *websocket.Conn) {
 	conn.SetCloseHandler(func(code int, text string) error {
 		log.Printf("WebSocket closed with code %d and text: %s", code, text)
 		delete(Connections, conn) // Remove the connection from the map.
+		numConnections--          // Decrement the number of connections.
+		sendPlayerDisconnectedMessage()
 		return nil
 	})
 	for {
@@ -173,8 +175,9 @@ func sendPlayerDisconnectedMessage() {
 	playerList := getConnectedPlayerNames()
 	for _, conn := range Connections {
 		msg := Msg{
-			Type:       "player-disconnected",
-			Playerlist: playerList,
+			Type:          "player-disconnected",
+			Playerlist:    playerList,
+			NumberOfConns: numConnections,
 		}
 		err := conn.Connection.WriteJSON(msg)
 		if err != nil {

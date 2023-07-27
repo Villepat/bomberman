@@ -107,6 +107,8 @@ async function initializeGame() {
       }
     } else if (receivedMessage.type === "player-disconnected") {
       console.log("player disconnected");
+      playersConnected = receivedMessage.numberOfConns;
+      players = receivedMessage.playerlist;
       updateLobbyDisplay();
     }
   };
