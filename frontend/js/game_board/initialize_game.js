@@ -13,11 +13,14 @@
 // 11. the game board is cleared from the DOM
 // 12. the game over screen is rendered to the DOM
 import { buildBaseGrid } from "./build_base.js";
+import { movePlayer } from "../physics/movement.js";
 
 let timer = 20;
+let timer2 = 10;
 let playersConnected = 0;
 let timerInterval;
 let players = [];
+let starting = false;
 
 function updateLobbyDisplay() {
   let lobby = document.getElementById("lobby");
@@ -38,7 +41,26 @@ function startCountdown() {
 
     if (timer <= 0) {
       clearInterval(timerInterval);
-      // Transition to start the game or whatever is required
+      // Start the final countdown
+      starting = true;
+      updateLobbyDisplay();
+      finalCountdown();
+    }
+
+    updateLobbyDisplay();
+  }, 1000);
+}
+
+function finalCountdown() {
+  clearInterval(timerInterval); // Clear existing interval if any
+  timerInterval = setInterval(() => {
+    timer2--;
+
+    if (timer2 <= 0) {
+      clearInterval(timerInterval);
+      // Transition to start the game
+      console.log("start game called");
+      startGame();
     }
 
     updateLobbyDisplay();
@@ -75,21 +97,24 @@ async function initializeGame() {
       }, 1000);
     } else if (receivedMessage.type === "player-connected") {
       console.log("player connected");
-      playersConnected = receivedMessage.data.Conections;
+      playersConnected = receivedMessage.numberOfConns;
       players = receivedMessage.playerlist;
       console.log(receivedMessage.playerlist);
       console.log(players);
       updateLobbyDisplay();
+      if (playersConnected === 2) {
+        startCountdown();
+      }
     } else if (receivedMessage.type === "player-disconnected") {
       console.log("player disconnected");
-      playersConnected--;
       updateLobbyDisplay();
     }
   };
 }
 
 function makeLobbyHTML() {
-  return `
+  if (!starting) {
+    return `
       <div>
           <h1>Waiting for players...</h1>
           <h2>Players connected: ${playersConnected}</h2>
@@ -97,6 +122,34 @@ function makeLobbyHTML() {
           <h2>Game starts in: ${timer} seconds</h2>
       </div>
       `;
+  } else {
+    return `
+        <div>
+            <h1>Game starting...</h1>
+            <h2>Players connected: ${playersConnected}</h2>
+            <h2>Players: ${players}</h2>
+            <h2>Game starts in: ${timer2} seconds</h2>
+        </div>
+        `;
+  }
+}
+
+function startGame() {
+  console.log("inside start game");
+  // Hide lobby display
+  let lobby = document.getElementById("lobby");
+  console.log(lobby);
+  if (lobby) {
+    lobby.style.display = "none";
+  }
+  // check that the websocket connection is open
+  if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+    // send a message to the server
+    let message = {
+      command: "start",
+    };
+    window.webSocketConnection.send(JSON.stringify(message));
+  }
 }
 
 export { initializeGame };
