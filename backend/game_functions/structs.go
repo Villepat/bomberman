@@ -26,6 +26,7 @@ type Player struct {
 	LastMove      time.Time
 	Left          int
 	Top           int
+	Conections    int
 }
 
 // Players map contains all players in the game
