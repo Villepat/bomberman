@@ -258,8 +258,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[1]++
-		player.PixelPosition[1] += 48
-		player.Top -= 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -292,8 +290,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[1]--
-		player.PixelPosition[1] -= 48
-		player.Top += 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -326,8 +322,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[0]--
-		player.PixelPosition[0] -= 48
-		player.Left -= 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -360,8 +354,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[0]++
-		player.PixelPosition[0] += 48
-		player.Left += 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
