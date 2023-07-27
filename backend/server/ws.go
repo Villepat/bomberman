@@ -14,11 +14,13 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+var ConnectedPlayers []string
 var gameBoard []byte
 var gameGrid [19][19]int
 var isGameBoardGenerated bool
 var numConnections = 0
 var gridMutex = &sync.Mutex{}
+var started = false
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -40,12 +42,15 @@ type Message struct {
 	X         int    `json:"x"`
 	Y         int    `json:"y"`
 	ID        int    `json:"id"`
+	Username  string `json:"name"`
 	Timestamp string
 }
 
 type Msg struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"data"`
+	Type          string      `json:"type"`
+	Data          interface{} `json:"data"`
+	Playerlist    []string    `json:"playerlist"`
+	NumberOfConns int         `json:"numberOfConns"`
 }
 
 // function to read the data from the websocket connection
@@ -62,6 +67,7 @@ func reader(conn *websocket.Conn) {
 		// If there are no more connections, reset the game board.
 		if numConnections == 0 {
 			isGameBoardGenerated = false
+			started = false
 		}
 	}()
 
@@ -69,6 +75,8 @@ func reader(conn *websocket.Conn) {
 	conn.SetCloseHandler(func(code int, text string) error {
 		log.Printf("WebSocket closed with code %d and text: %s", code, text)
 		delete(Connections, conn) // Remove the connection from the map.
+		numConnections--          // Decrement the number of connections.
+		sendPlayerDisconnectedMessage()
 		return nil
 	})
 	for {
@@ -93,10 +101,30 @@ func reader(conn *websocket.Conn) {
 			log.Println("message: ", msg)
 			log.Println("message command: ", msg.Command)
 			log.Println("message text: ", msg.Direction)
-			if msg.Command == "playerPosition" {
+			if msg.Command == "player" {
 				log.Println("HAHAXD")
 				log.Println("message: ", msg)
-				assignPosition(&game_functions.Players, msg.X, msg.Y, msg.ID)
+				id := Connections[conn].UserID
+				assignName(&game_functions.Players, msg.Username, id)
+				ConnectedPlayers = append(ConnectedPlayers, msg.Username)
+				// assign a name to the userconnection
+				Connections[conn].Username = msg.Username
+				sendPlayerConnectedMessage()
+			}
+			if msg.Command == "start" && !started {
+				started = true
+				log.Println("start command received")
+				// send the game board to all the players
+				for _, conn := range Connections {
+					msg := Msg{
+						Type: "start",
+						Data: gameGrid,
+					}
+					err := conn.Connection.WriteJSON(msg)
+					if err != nil {
+						log.Println(err)
+					}
+				}
 			}
 
 			palyer := Connections[conn].UserID
@@ -113,16 +141,60 @@ func reader(conn *websocket.Conn) {
 	}
 }
 
-func assignPosition(players *map[int]game_functions.Player, x int, y int, id int) {
-	player, exists := (*players)[id]
+func getConnectedPlayerNames() []string {
+	var names []string
+	for _, userConn := range Connections {
+		names = append(names, userConn.Username)
+	}
+	return names
+}
+
+// function to send player connected message to all connections
+func sendPlayerConnectedMessage() {
+	log.Println("sending player connected message")
+	player := game_functions.Players[len(game_functions.Players)]
+	player.Conections = numConnections
+	playerList := getConnectedPlayerNames()
+	for _, conn := range Connections {
+		msg := Msg{
+			Type:          "player-connected",
+			Data:          player,
+			Playerlist:    playerList,
+			NumberOfConns: numConnections,
+		}
+		err := conn.Connection.WriteJSON(msg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+// function to send player disconnected message to all connections
+func sendPlayerDisconnectedMessage() {
+	log.Println("sending player disconnected message")
+	playerList := getConnectedPlayerNames()
+	for _, conn := range Connections {
+		msg := Msg{
+			Type:          "player-disconnected",
+			Playerlist:    playerList,
+			NumberOfConns: numConnections,
+		}
+		err := conn.Connection.WriteJSON(msg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func assignName(players *map[int]game_functions.Player, name string, ID int) {
+	player, exists := (*players)[ID]
 	if !exists {
 		// Handle error or create a new player
 		log.Println("player does not exist")
 		return
 	}
-	player.Left = x
-	player.Top = y
-	(*players)[id] = player
+	player.Name = name
+	(*players)[ID] = player
 	log.Println("player: ", player)
 }
 
@@ -191,18 +263,19 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	game_functions.Players[userconn.UserID] = player
 	// log.Println("Players: ", game_functions.Players)
 	//Print player info one by one
-	for _, player := range game_functions.Players {
-		log.Println("Player ID: ", player.PlayerID)
-		log.Println("Player Name: ", player.Name)
-		log.Println("Player Lives: ", player.Lives)
-		log.Println("Player Speed: ", player.Speed)
-		log.Println("Player Direction: ", player.Direction)
-		log.Println("Player Bombs: ", player.Bombs)
-		log.Println("Player Bomb Range: ", player.BombRange)
-		log.Println("Player Grid Position: ", player.GridPosition)
-		log.Println("Player Pixel Position: ", player.PixelPosition)
-	}
+	// for _, player := range game_functions.Players {
+	// 	log.Println("Player ID: ", player.PlayerID)
+	// 	log.Println("Player Name: ", player.Name)
+	// 	log.Println("Player Lives: ", player.Lives)
+	// 	log.Println("Player Speed: ", player.Speed)
+	// 	log.Println("Player Direction: ", player.Direction)
+	// 	log.Println("Player Bombs: ", player.Bombs)
+	// 	log.Println("Player Bomb Range: ", player.BombRange)
+	// 	log.Println("Player Grid Position: ", player.GridPosition)
+	// 	log.Println("Player Pixel Position: ", player.PixelPosition)
+	// }
 
+	// generate the game board
 	if !isGameBoardGenerated {
 		gameGrid, gameBoard, err = game_functions.GenerateGameBoard()
 		if err != nil {
@@ -210,12 +283,6 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 		} else {
 			isGameBoardGenerated = true
 		}
-	}
-
-	// Send the game board to the client
-	err = ws.WriteMessage(1, gameBoard)
-	if err != nil {
-		log.Println(err)
 	}
 
 	go reader(ws)
