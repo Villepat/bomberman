@@ -2,6 +2,7 @@
 let adjustment = 0;
 let width = window.innerWidth;
 
+
 function debounce(func, wait) {
   let timeout;
   return function (...args) {
