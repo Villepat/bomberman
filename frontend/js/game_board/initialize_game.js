@@ -15,8 +15,8 @@
 import { buildBaseGrid } from "./build_base.js";
 import { movePlayer } from "../physics/movement.js";
 
-let timer = 20;
-let timer2 = 10;
+let timer = 5; // set to 20 for production
+let timer2 = 5; // set to 10 for production
 let playersConnected = 0;
 let timerInterval;
 let players = [];
