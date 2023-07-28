@@ -264,18 +264,6 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	//add player to map of players
 	game_functions.Players[userconn.UserID] = player
 	// log.Println("Players: ", game_functions.Players)
-	//Print player info one by one
-	// for _, player := range game_functions.Players {
-	// 	log.Println("Player ID: ", player.PlayerID)
-	// 	log.Println("Player Name: ", player.Name)
-	// 	log.Println("Player Lives: ", player.Lives)
-	// 	log.Println("Player Speed: ", player.Speed)
-	// 	log.Println("Player Direction: ", player.Direction)
-	// 	log.Println("Player Bombs: ", player.Bombs)
-	// 	log.Println("Player Bomb Range: ", player.BombRange)
-	// 	log.Println("Player Grid Position: ", player.GridPosition)
-	// 	log.Println("Player Pixel Position: ", player.PixelPosition)
-	// }
 
 	// generate the game board
 	if !isGameBoardGenerated {
