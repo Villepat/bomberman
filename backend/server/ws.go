@@ -44,6 +44,7 @@ type Message struct {
 	ID        int    `json:"id"`
 	Username  string `json:"name"`
 	Timestamp string
+	Chat      string `json:"message"`
 }
 
 type Msg struct {
@@ -122,6 +123,20 @@ func reader(conn *websocket.Conn) {
 						Type:       "start",
 						Data:       gameGrid,
 						Playerlist: plist,
+					}
+					err := conn.Connection.WriteJSON(msg)
+					if err != nil {
+						log.Println(err)
+					}
+				}
+			}
+			if msg.Command == "chat" {
+				log.Println("chat command received")
+				chatMessage := Connections[conn].Username + ": " + msg.Chat
+				for _, conn := range Connections {
+					msg := Msg{
+						Type: "chat",
+						Data: chatMessage,
 					}
 					err := conn.Connection.WriteJSON(msg)
 					if err != nil {

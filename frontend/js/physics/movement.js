@@ -38,6 +38,12 @@ export function movePlayer(player) {
   window.addEventListener("resize", debounce(handleResize, 200)); // 200ms delay
 
   document.addEventListener("keydown", function (event) {
+    const chatInput = document.getElementById("chat-input");
+
+    // If chat is focused, don't execute game commands
+    if (document.activeElement === chatInput) {
+      return;
+    }
     // Prevent scrolling for Arrow keys and Space
     if (
       ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Space"].includes(
@@ -113,6 +119,13 @@ export function movePlayer(player) {
       } else if (message.type === "explosion") {
         console.log("explosion received");
         updateExplosion(message.data);
+      } else if (message.type === "chat") {
+        console.log("chat message received");
+        let chatWindow = document.getElementById("chat-messages");
+        let cmessage = document.createElement("p");
+        cmessage.classList.add("chat-message");
+        cmessage.innerHTML = message.data;
+        chatWindow.appendChild(cmessage);
       }
     };
     requestAnimationFrame(animationLoop);
