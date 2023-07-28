@@ -1,6 +1,5 @@
 import { render } from "./framework/myFramework.js";
 import { initializeGame } from "./game_board/initialize_game.js";
-import { movePlayer } from "./physics/movement.js";
 
 if (window.location.pathname === "/") {
   // render the start page

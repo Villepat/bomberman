@@ -92,6 +92,7 @@ async function initializeGame() {
     if (receivedMessage.type === "start") {
       let gameBoard = receivedMessage.data;
       let num = receivedMessage.playerlist.length;
+      updateHUD(receivedMessage.playerlist);
       await buildBaseGrid(gameBoard, num);
       setTimeout(function () {
         requestAnimationFrame(movePlayer);
@@ -100,6 +101,7 @@ async function initializeGame() {
       console.log("player connected");
       playersConnected = receivedMessage.numberOfConns;
       players = receivedMessage.playerlist;
+      updateName(players);
       console.log(receivedMessage.playerlist);
       console.log(players);
       updateLobbyDisplay();
@@ -152,6 +154,28 @@ function startGame() {
       command: "start",
     };
     window.webSocketConnection.send(JSON.stringify(message));
+  }
+}
+
+function updateHUD(players) {
+  for (let i = 0; i < players.length; i++) {
+    let username = players[i];
+    let playerNameElement = document.getElementById(`player${i + 1}-name`);
+    playerNameElement.innerHTML = username;
+  }
+
+  // Hide HUDS for players that are not in the game
+  for (let i = players.length; i < 4; i++) {
+    let playerElement = document.getElementById(`player${i + 1}`);
+    playerElement.style.display = "none";
+  }
+}
+
+function updateName(players) {
+  for (let i = 0; i < players.length; i++) {
+    let username = players[i];
+    let playerNameElement = document.getElementById(`player${i + 1}-name`);
+    playerNameElement.innerHTML = username;
   }
 }
 
