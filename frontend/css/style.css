@@ -189,6 +189,7 @@ body p {
   display: flex;
   flex-direction: column;
   background-color: #f7f7f7;
+  opacity: 0.4;
 }
 
 #chat-messages {
