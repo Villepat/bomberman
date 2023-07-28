@@ -82,7 +82,7 @@ async function initializeGame() {
   };
 
   // establish a websocket connection
-  window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
+  window.webSocketConnection = new WebSocket("ws://10.5.126.24:80/ws");
   // send a message to the server
   window.webSocketConnection.onopen = function (event) {
     console.log("WebSocket is open now.");
