@@ -91,7 +91,8 @@ async function initializeGame() {
     let receivedMessage = JSON.parse(event.data);
     if (receivedMessage.type === "start") {
       let gameBoard = receivedMessage.data;
-      await buildBaseGrid(gameBoard);
+      let num = receivedMessage.playerlist.length;
+      await buildBaseGrid(gameBoard, num);
       setTimeout(function () {
         requestAnimationFrame(movePlayer);
       }, 1000);
