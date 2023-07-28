@@ -248,8 +248,6 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	case 1:
 		player.GridPosition = [2]int{1, 1}
 		player.PixelPosition = [2]int{51, 51}
-		player.Left = 487
-		player.Top = 1037
 
 	case 2:
 		player.GridPosition = [2]int{17, 17}
@@ -315,8 +313,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[1]++
-		player.PixelPosition[1] += 48
-		player.Top -= 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -349,8 +345,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[1]--
-		player.PixelPosition[1] -= 48
-		player.Top += 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -383,8 +377,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[0]--
-		player.PixelPosition[0] -= 48
-		player.Left -= 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -417,8 +409,6 @@ func MovePlayer(gameGrid [19][19]int, playerID int, direction string) [19][19]in
 		}
 
 		player.GridPosition[0]++
-		player.PixelPosition[0] += 48
-		player.Left += 50
 
 		//if value of gameGrid at player.GridPosition is 8, 9 or 10, update player's powerups
 		if gameGrid[player.GridPosition[1]][player.GridPosition[0]] == 8 {
@@ -598,7 +588,9 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int, playerI
 	var affectedPlayers []int
 	rand.Seed(time.Now().UnixNano())
 
-	explosionCells = append(explosionCells, []int{x, y}) // CHECK IF THIS IS CORRECT
+	// explosionCells = append(explosionCells, []int{x, y})
+
+	handleExplosionLogic(x, y, gameGrid, &affectedCells, &affectedPlayers, &explosionCells)
 
 	// Explosion to the right
 	for i := 1; i <= bombRange; i++ {
@@ -715,6 +707,8 @@ func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[]
 			if player.Lives == 0 {
 				// Player is dead
 				player.BombRange = 1
+				player.GridPosition[0] = 0
+				player.GridPosition[1] = 0
 				game_functions.Players[player.PlayerID] = player
 				log.Println("Player ", player.PlayerID, " is dead")
 				*affectedPlayers = append(*affectedPlayers, player.PlayerID)

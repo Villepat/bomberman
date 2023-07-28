@@ -155,13 +155,17 @@ function updatePlayerPosition(player) {
       break;
   }
 
-
   //update the players background image based on the direction, player1 is down, playerLeft1 is left, playerRight1 is right, playerUpward1 is up (for player 1)
   let playerImg = document.getElementById(`player-${player.PlayerID}`);
   playerImg.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.png")`;
 
   // Remove all previous direction classes and add the current direction class
-  playerxd.classList.remove("playerup", "playerdown", "playerleft", "playerright");
+  playerxd.classList.remove(
+    "playerup",
+    "playerdown",
+    "playerleft",
+    "playerright"
+  );
   playerxd.classList.add(`player-${direction}`);
 }
 
@@ -300,12 +304,10 @@ function updateLife(player) {
     }
     if (player.Lives <= 0) {
       console.log("player died");
-      let playerEl = document.querySelectorAll(".player-" + player.PlayerID);
+      let playerEl = document.querySelector("#player-" + player.PlayerID);
+      console.log("playerEl: ", playerEl);
       // remove player from board
-      playerEl.forEach((el) => {
-        el.classList.remove("player-" + player.PlayerID);
-        el.classList.add("cell");
-      });
+      playerEl.remove();
     }
   }
 }
