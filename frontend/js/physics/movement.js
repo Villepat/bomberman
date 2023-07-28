@@ -90,8 +90,7 @@ export function movePlayer(player) {
         };
         break;
       default:
-        // if other key pressed
-        break;
+        return;
     }
     // Check if the WebSocket is still open before sending a message
     if (window.webSocketConnection.readyState === WebSocket.OPEN) {
