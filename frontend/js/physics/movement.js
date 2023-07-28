@@ -160,6 +160,11 @@ function updatePlayerPosition(player) {
   let playerImg = document.getElementById(`player-${player.PlayerID}`);
   playerImg.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.png")`;
 
+  //update the moving player when pressing the key with the gif image
+  let playerGif = document.getElementById(`player-${player.PlayerID}`);
+  playerGif.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.gif")`;
+
+
   // Remove all previous direction classes and add the current direction class
   playerxd.classList.remove("playerup", "playerdown", "playerleft", "playerright");
   playerxd.classList.add(`player-${direction}`);
