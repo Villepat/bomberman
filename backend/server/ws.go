@@ -62,7 +62,7 @@ func reader(conn *websocket.Conn) {
 		delete(Connections, conn)
 
 		// Decrement the number of connections.
-		numConnections--
+		numConnections = len(Connections)
 
 		// If there are no more connections, reset the game board.
 		if numConnections == 0 {
@@ -74,8 +74,8 @@ func reader(conn *websocket.Conn) {
 	// Set up a close handler for the WebSocket connection
 	conn.SetCloseHandler(func(code int, text string) error {
 		log.Printf("WebSocket closed with code %d and text: %s", code, text)
-		delete(Connections, conn) // Remove the connection from the map.
-		numConnections--          // Decrement the number of connections.
+		delete(Connections, conn)         // Remove the connection from the map.
+		numConnections = len(Connections) // Decrement the number of connections.
 		sendPlayerDisconnectedMessage()
 		return nil
 	})
@@ -101,6 +101,7 @@ func reader(conn *websocket.Conn) {
 			log.Println("message: ", msg)
 			log.Println("message command: ", msg.Command)
 			log.Println("message text: ", msg.Direction)
+			log.Println("connection length: ", len(Connections))
 			if msg.Command == "player" {
 				log.Println("HAHAXD")
 				log.Println("message: ", msg)
@@ -113,12 +114,14 @@ func reader(conn *websocket.Conn) {
 			}
 			if msg.Command == "start" && !started {
 				started = true
+				plist := getConnectedPlayerNames()
 				log.Println("start command received")
 				// send the game board to all the players
 				for _, conn := range Connections {
 					msg := Msg{
-						Type: "start",
-						Data: gameGrid,
+						Type:       "start",
+						Data:       gameGrid,
+						Playerlist: plist,
 					}
 					err := conn.Connection.WriteJSON(msg)
 					if err != nil {
@@ -153,7 +156,6 @@ func getConnectedPlayerNames() []string {
 func sendPlayerConnectedMessage() {
 	log.Println("sending player connected message")
 	player := game_functions.Players[len(game_functions.Players)]
-	player.Conections = numConnections
 	playerList := getConnectedPlayerNames()
 	for _, conn := range Connections {
 		msg := Msg{
@@ -220,7 +222,7 @@ func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	}
 	// Add the connection to the list of active connections.
 	Connections[ws] = userconn
-	numConnections++ // Increment the number of connections.
+	numConnections = len(Connections) // Increment the number of connections.
 	log.Printf("User %s with ID %d successfully connected", userconn.Username, userconn.UserID)
 	log.Println("connections: ", Connections)
 
