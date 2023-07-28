@@ -68,6 +68,7 @@ function finalCountdown() {
 }
 
 async function initializeGame() {
+  createChatWindow();
   // remove the start button from the DOM
   let startButton = document.getElementById("start-button");
   startButton.remove();
@@ -113,6 +114,13 @@ async function initializeGame() {
       playersConnected = receivedMessage.numberOfConns;
       players = receivedMessage.playerlist;
       updateLobbyDisplay();
+    } else if (receivedMessage.type === "chat") {
+      console.log("chat message received");
+      let chatWindow = document.getElementById("chat-messages");
+      let message = document.createElement("p");
+      message.classList.add("chat-message");
+      message.innerHTML = receivedMessage.data;
+      chatWindow.appendChild(message);
     }
   };
 }
@@ -177,6 +185,63 @@ function updateName(players) {
     let playerNameElement = document.getElementById(`player${i + 1}-name`);
     playerNameElement.innerHTML = username;
   }
+}
+
+function createChatWindow() {
+  const chatWindow = document.createElement("div");
+  chatWindow.id = "chat-window";
+
+  const chatMessages = document.createElement("div");
+  chatMessages.id = "chat-messages";
+  chatWindow.appendChild(chatMessages);
+
+  const chatInputContainer = document.createElement("div");
+  chatInputContainer.id = "chat-input-container";
+  chatWindow.appendChild(chatInputContainer);
+
+  const chatInput = document.createElement("input");
+  chatInput.type = "text";
+  chatInput.id = "chat-input";
+  chatInput.placeholder = "Type a message...";
+  chatInputContainer.appendChild(chatInput);
+
+  const sendButton = document.createElement("button");
+  sendButton.id = "send-button";
+  sendButton.textContent = "Send";
+  chatInputContainer.appendChild(sendButton);
+
+  function sendMessage() {
+    // If there's a message in the input, display it in the chat messages area
+    if (chatInput.value.trim() !== "") {
+      // check that the websocket connection is open and send the message
+      if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+        // send a message to the server
+        let message = {
+          command: "chat",
+          message: chatInput.value,
+        };
+        window.webSocketConnection.send(JSON.stringify(message));
+      }
+      // Clear the input after sending
+      chatInput.value = "";
+      // Scroll to the bottom to see the latest message
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+  }
+
+  // Send message when the "Send" button is clicked
+  sendButton.addEventListener("click", sendMessage);
+
+  // Send message when "Enter" key is pressed in the chat input
+  chatInput.addEventListener("keydown", function (event) {
+    if (event.key === "Enter") {
+      event.preventDefault(); // Prevent the default action (new line or form submission)
+      sendMessage();
+    }
+  });
+
+  // Append the chat window to the body (or another parent element if you prefer)
+  document.body.appendChild(chatWindow);
 }
 
 export { initializeGame };
