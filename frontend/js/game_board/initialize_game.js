@@ -12,62 +12,171 @@
 // 10. the game ends when there is only one player left
 // 11. the game board is cleared from the DOM
 // 12. the game over screen is rendered to the DOM
-//
 import { buildBaseGrid } from "./build_base.js";
+import { movePlayer } from "../physics/movement.js";
+
+let timer = 20;
+let timer2 = 10;
+let playersConnected = 0;
+let timerInterval;
+let players = [];
+let starting = false;
+
+function updateLobbyDisplay() {
+  let lobby = document.getElementById("lobby");
+  if (!lobby) {
+    // Create lobby if it doesn't exist
+    lobby = document.createElement("div");
+    lobby.id = "lobby";
+    document.body.appendChild(lobby);
+  }
+
+  lobby.innerHTML = makeLobbyHTML();
+}
+
+function startCountdown() {
+  clearInterval(timerInterval); // Clear existing interval if any
+  timerInterval = setInterval(() => {
+    timer--;
+
+    if (timer <= 0) {
+      clearInterval(timerInterval);
+      // Start the final countdown
+      starting = true;
+      updateLobbyDisplay();
+      finalCountdown();
+    }
+
+    updateLobbyDisplay();
+  }, 1000);
+}
+
+function finalCountdown() {
+  clearInterval(timerInterval); // Clear existing interval if any
+  timerInterval = setInterval(() => {
+    timer2--;
+
+    if (timer2 <= 0) {
+      clearInterval(timerInterval);
+      // Transition to start the game
+      console.log("start game called");
+      startGame();
+    }
+
+    updateLobbyDisplay();
+  }, 1000);
+}
 
 async function initializeGame() {
   // remove the start button from the DOM
   let startButton = document.getElementById("start-button");
   startButton.remove();
+  let username = document.getElementById("player-name").value;
   let welcomeMessage = document.getElementById("welcome-message");
   welcomeMessage.remove();
 
-  // add a resign button to the DOM
-  let resignButton = document.createElement("button");
-  resignButton.setAttribute("id", "resign-button");
-  resignButton.setAttribute("type", "button");
-  resignButton.innerHTML = "Resign";
-  // let welcomeDiv = document.getElementById("welcome-message");
-  // welcomeDiv.appendChild(resignButton);
+  let message = {
+    command: "player",
+    name: username,
+  };
 
-  // add an onClick event listener to the resign button
-  resignButton.addEventListener("click", function () {
-    window.webSocketConnection.close();
-    window.location.reload();
-  });
   // establish a websocket connection
   window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
   // send a message to the server
   window.webSocketConnection.onopen = function (event) {
     console.log("WebSocket is open now.");
+    window.webSocketConnection.send(JSON.stringify(message));
   };
-  // receive a message from the server
   window.webSocketConnection.onmessage = async function (event) {
-    let gameBoard = JSON.parse(event.data);
-    await buildBaseGrid(gameBoard);
-    // send the startin positions of the players to the server
-    let players = document.getElementsByClassName("player");
-    for (let i = 0; i < players.length; i++) {
-      let playerRect = document
-        .getElementById(`player-${i + 1}`)
-        .getBoundingClientRect();
-      let playerPosition = {
-        id: i + 1,
-        x: playerRect.left,
-        y: playerRect.top,
-      };
-      let realX = Math.floor(playerPosition.x);
-      let realY = Math.floor(playerPosition.y);
-
-      let message = {
-        command: "playerPosition",
-        x: realX,
-        y: realY,
-        id: playerPosition.id,
-      };
-      window.webSocketConnection.send(JSON.stringify(message));
+    let receivedMessage = JSON.parse(event.data);
+    if (receivedMessage.type === "start") {
+      let gameBoard = receivedMessage.data;
+      let num = receivedMessage.playerlist.length;
+      updateHUD(receivedMessage.playerlist);
+      await buildBaseGrid(gameBoard, num);
+      setTimeout(function () {
+        requestAnimationFrame(movePlayer);
+      }, 1000);
+    } else if (receivedMessage.type === "player-connected") {
+      console.log("player connected");
+      playersConnected = receivedMessage.numberOfConns;
+      players = receivedMessage.playerlist;
+      updateName(players);
+      console.log(receivedMessage.playerlist);
+      console.log(players);
+      updateLobbyDisplay();
+      if (playersConnected === 2) {
+        startCountdown();
+      }
+    } else if (receivedMessage.type === "player-disconnected") {
+      console.log("player disconnected");
+      playersConnected = receivedMessage.numberOfConns;
+      players = receivedMessage.playerlist;
+      updateLobbyDisplay();
     }
   };
+}
+
+function makeLobbyHTML() {
+  if (!starting) {
+    return `
+      <div>
+          <h1>Waiting for players...</h1>
+          <h2>Players connected: ${playersConnected}</h2>
+          <h2>Players: ${players}</h2>
+          <h2>Game starts in: ${timer} seconds</h2>
+      </div>
+      `;
+  } else {
+    return `
+        <div>
+            <h1>Game starting...</h1>
+            <h2>Players connected: ${playersConnected}</h2>
+            <h2>Players: ${players}</h2>
+            <h2>Game starts in: ${timer2} seconds</h2>
+        </div>
+        `;
+  }
+}
+
+function startGame() {
+  console.log("inside start game");
+  // Hide lobby display
+  let lobby = document.getElementById("lobby");
+  console.log(lobby);
+  if (lobby) {
+    lobby.style.display = "none";
+  }
+  // check that the websocket connection is open
+  if (window.webSocketConnection.readyState === WebSocket.OPEN) {
+    // send a message to the server
+    let message = {
+      command: "start",
+    };
+    window.webSocketConnection.send(JSON.stringify(message));
+  }
+}
+
+function updateHUD(players) {
+  for (let i = 0; i < players.length; i++) {
+    let username = players[i];
+    let playerNameElement = document.getElementById(`player${i + 1}-name`);
+    playerNameElement.innerHTML = username;
+  }
+
+  // Hide HUDS for players that are not in the game
+  for (let i = players.length; i < 4; i++) {
+    let playerElement = document.getElementById(`player${i + 1}`);
+    playerElement.style.display = "none";
+  }
+}
+
+function updateName(players) {
+  for (let i = 0; i < players.length; i++) {
+    let username = players[i];
+    let playerNameElement = document.getElementById(`player${i + 1}-name`);
+    playerNameElement.innerHTML = username;
+  }
 }
 
 export { initializeGame };

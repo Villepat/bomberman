@@ -1,8 +1,7 @@
 // File for building the base grid for the game board
-let playerAmount = 4;
 
 // Function to build the base grid for the game board
-async function buildBaseGrid(gameBoard) {
+async function buildBaseGrid(gameBoard, playerAmount) {
   // Generate CSS for grid template
   const n = gameBoard.length;
   const gridTemplate = `repeat(${n}, 0fr)`;
