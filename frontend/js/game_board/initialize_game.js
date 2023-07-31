@@ -67,6 +67,18 @@ function finalCountdown() {
   }, 1000);
 }
 
+function stopAndResetTimer() {
+  clearInterval(timerInterval); // Stops any active timer
+
+  if (starting) {
+    timer2 = 10; // reset the second timer if the final countdown was in progress
+    starting = false;
+  }
+  timer = 20; // reset the first timer
+
+  updateLobbyDisplay();
+}
+
 async function initializeGame() {
   createChatWindow();
   // remove the start button from the DOM
@@ -114,6 +126,9 @@ async function initializeGame() {
       playersConnected = receivedMessage.numberOfConns;
       players = receivedMessage.playerlist;
       updateLobbyDisplay();
+      if (playersConnected < 2) {
+        stopAndResetTimer();
+      }
     } else if (receivedMessage.type === "chat") {
       console.log("chat message received");
       let chatWindow = document.getElementById("chat-messages");
@@ -121,6 +136,12 @@ async function initializeGame() {
       message.classList.add("chat-message");
       message.innerHTML = receivedMessage.data;
       chatWindow.appendChild(message);
+    } else if (receivedMessage.type === "abandon") {
+      console.log("abandon message received");
+      window.location.href =
+        window.location.origin +
+        window.location.pathname +
+        "?message=gameAbandoned";
     }
   };
 }

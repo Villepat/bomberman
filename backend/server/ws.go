@@ -60,6 +60,7 @@ func reader(conn *websocket.Conn) {
 		if err := conn.Close(); err != nil {
 			log.Printf("Failed to close connection: %v", err)
 		}
+
 		delete(Connections, conn)
 
 		// Decrement the number of connections.
@@ -74,10 +75,23 @@ func reader(conn *websocket.Conn) {
 
 	// Set up a close handler for the WebSocket connection
 	conn.SetCloseHandler(func(code int, text string) error {
+		abandon := false
 		log.Printf("WebSocket closed with code %d and text: %s", code, text)
+		userConn, ok := Connections[conn]
+		if ok {
+			disconnectedUserID := userConn.UserID
+			if disconnectedUserID < numConnections {
+				abandon = true
+			}
+			log.Printf("User with ID %d disconnected", disconnectedUserID)
+		}
 		delete(Connections, conn)         // Remove the connection from the map.
 		numConnections = len(Connections) // Decrement the number of connections.
-		sendPlayerDisconnectedMessage()
+		if abandon {
+			sendAbandonMessage()
+		} else {
+			sendPlayerDisconnectedMessage()
+		}
 		return nil
 	})
 	for {
@@ -90,6 +104,7 @@ func reader(conn *websocket.Conn) {
 		for _, conn := range Connections {
 			ConnectionsByName[conn.Username] = conn.Connection
 		}
+
 		log.Println("message received: ")
 		log.Println(string(p))
 		if messageType == 1 {
@@ -195,6 +210,19 @@ func sendPlayerDisconnectedMessage() {
 			Type:          "player-disconnected",
 			Playerlist:    playerList,
 			NumberOfConns: numConnections,
+		}
+		err := conn.Connection.WriteJSON(msg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func sendAbandonMessage() {
+	log.Println("sending abandon message")
+	for _, conn := range Connections {
+		msg := Msg{
+			Type: "abandon",
 		}
 		err := conn.Connection.WriteJSON(msg)
 		if err != nil {
