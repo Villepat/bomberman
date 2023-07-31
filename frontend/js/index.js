@@ -1,6 +1,15 @@
 import { render } from "./framework/myFramework.js";
 import { initializeGame } from "./game_board/initialize_game.js";
 
+window.onload = function () {
+  const urlParams = new URLSearchParams(window.location.search);
+  const messageParam = urlParams.get("message");
+
+  if (messageParam === "gameAbandoned") {
+    alert("The game was abandoned. Please try again.");
+  }
+};
+
 if (window.location.pathname === "/") {
   // render the start page
   const startPage = render({

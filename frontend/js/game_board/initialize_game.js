@@ -15,8 +15,10 @@
 import { buildBaseGrid } from "./build_base.js";
 import { movePlayer } from "../physics/movement.js";
 
-let timer = 5; // set to 20 for production
-let timer2 = 1; // set to 10 for production
+
+let timer = 20; // set to 20 for production
+let timer2 = 10; // set to 10 for production
+
 let playersConnected = 0;
 let timerInterval;
 let players = [];
@@ -67,6 +69,18 @@ function finalCountdown() {
   }, 1000);
 }
 
+function stopAndResetTimer() {
+  clearInterval(timerInterval); // Stops any active timer
+
+  if (starting) {
+    timer2 = 10; // reset the second timer if the final countdown was in progress
+    starting = false;
+  }
+  timer = 20; // reset the first timer
+
+  updateLobbyDisplay();
+}
+
 async function initializeGame() {
   createChatWindow();
   // remove the start button from the DOM
@@ -109,11 +123,19 @@ async function initializeGame() {
       if (playersConnected === 4) {
         startCountdown();
       }
+      if (playersConnected === 4) {
+        starting = true;
+        updateLobbyDisplay();
+        finalCountdown();
+      }
     } else if (receivedMessage.type === "player-disconnected") {
       console.log("player disconnected");
       playersConnected = receivedMessage.numberOfConns;
       players = receivedMessage.playerlist;
       updateLobbyDisplay();
+      if (playersConnected < 2) {
+        stopAndResetTimer();
+      }
     } else if (receivedMessage.type === "chat") {
       console.log("chat message received");
       let chatWindow = document.getElementById("chat-messages");
@@ -121,6 +143,12 @@ async function initializeGame() {
       message.classList.add("chat-message");
       message.innerHTML = receivedMessage.data;
       chatWindow.appendChild(message);
+    } else if (receivedMessage.type === "abandon") {
+      console.log("abandon message received");
+      window.location.href =
+        window.location.origin +
+        window.location.pathname +
+        "?message=gameAbandoned";
     }
   };
 }
