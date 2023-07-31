@@ -125,6 +125,10 @@ export function movePlayer(player) {
         cmessage.classList.add("chat-message");
         cmessage.innerHTML = message.data;
         chatWindow.appendChild(cmessage);
+      } else if (message.type === "gameOver") {
+        console.log("gameOver received");
+        console.log(message.data);
+        alert(message.data.Winner + " has won the game!");
       }
     };
     requestAnimationFrame(animationLoop);

@@ -21,6 +21,7 @@ var isGameBoardGenerated bool
 var numConnections = 0
 var gridMutex = &sync.Mutex{}
 var started = false
+var gameOver = false
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -70,6 +71,7 @@ func reader(conn *websocket.Conn) {
 		if numConnections == 0 {
 			isGameBoardGenerated = false
 			started = false
+			gameOver = false
 		}
 	}()
 
@@ -247,8 +249,8 @@ func assignName(players *map[int]game_functions.Player, name string, ID int) {
 func wsEndpoint(w http.ResponseWriter, r *http.Request) {
 	upgrader.CheckOrigin = func(r *http.Request) bool { return true }
 
-	if numConnections >= 4 {
-		log.Println("Connection attempt rejected. Maximum number of connections reached.")
+	if numConnections >= 4 || started {
+		log.Println("Connection attempt rejected. Maximum number of connections reached. or game has already started")
 		w.WriteHeader(http.StatusServiceUnavailable) // Or another appropriate status code
 		return
 	}
@@ -726,6 +728,11 @@ func HandleExplosion(gameGrid *[19][19]int, x int, y int, bombRange int, playerI
 			}
 		}
 	}
+
+	// Check if the game is over
+	if gameOver {
+		sendGameOverMessage()
+	}
 }
 
 // handleExplosionLogic is a helper function to manage the explosion logic at a given cell.
@@ -755,6 +762,22 @@ func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[]
 				game_functions.Players[player.PlayerID] = player
 				log.Println("Player ", player.PlayerID, " is dead")
 				*affectedPlayers = append(*affectedPlayers, player.PlayerID)
+
+				// check if the game is over
+				alivePlayers := 0
+				for _, player := range game_functions.Players {
+					if player.Lives > 0 {
+						alivePlayers++
+					}
+				}
+				if alivePlayers == 1 {
+					gameOver = true
+
+					// Game is over
+					log.Println("Game is over")
+					// sendGameOverMessage()
+				}
+
 			} else {
 				// Player is alive
 				player.BombRange = 1
@@ -764,7 +787,38 @@ func handleExplosionLogic(x int, y int, gameGrid *[19][19]int, affectedCells *[]
 			}
 		}
 	}
+}
 
+func sendGameOverMessage() {
+	log.Println("in sendGameOverMessage")
+	// range over all of the players and find the winner
+	winner := ""
+
+	for _, player := range game_functions.Players {
+		if player.Lives > 0 {
+			winner = player.Name
+		}
+	}
+
+	gameOverMsg := Msg{
+		Type: "gameOver",
+		Data: struct {
+			Winner string
+		}{
+			Winner: winner,
+		},
+	}
+	log.Println("Sending game over message in 1 seconds")
+	time.Sleep(1 * time.Second)
+
+	//send the gameOverMsg to all of the clients
+	for _, conn := range Connections {
+		err := conn.Connection.WriteJSON(gameOverMsg)
+		if err != nil {
+			log.Println(err)
+		}
+	}
+	log.Println("Game over message sent")
 }
 
 func printBoard(board *[19][19]int) {
