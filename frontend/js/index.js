@@ -1,6 +1,14 @@
 import { render } from "./framework/myFramework.js";
 import { initializeGame } from "./game_board/initialize_game.js";
-import { movePlayer } from "./physics/movement.js";
+
+window.onload = function () {
+  const urlParams = new URLSearchParams(window.location.search);
+  const messageParam = urlParams.get("message");
+
+  if (messageParam === "gameAbandoned") {
+    alert("The game was abandoned. Please try again.");
+  }
+};
 
 if (window.location.pathname === "/") {
   // render the start page
@@ -13,52 +21,56 @@ if (window.location.pathname === "/") {
         attrs: { class: "rectangle" },
         children: [],
       },
+      {
+        tag: "h1",
+        attrs: {},
+        children: ["Welcome to the Bomberman!"],
+      },
+      {
+        tag: "div",
+        attrs: {},
+        children: [
           {
-            tag: "h1",
-            attrs: { },
-            children: ["Welcome to the Bomberman!"],
+            tag: "p",
+            attrs: {},
+            children: ["Please enter your name:"],
           },
           {
-            tag: "div",
+            tag: "input",
+            attrs: {
+              class: "player-name-input",
+              id: "player-name",
+              value: "Player",
+            },
+            children: ["Please enter your name:"],
+          },
+          {
+            tag: "button",
+            attrs: { id: "start-button" },
+            children: ["Start Game"],
+          },
+        ],
+      },
+      {
+        tag: "div",
+        attrs: {},
+        children: [
+          {
+            tag: "h2",
+            attrs: {},
+            children: ["How to play:"],
+          },
+          {
+            tag: "p",
             attrs: {},
             children: [
-              {
-                tag: "p",
-                attrs: {},
-                children: ["Please enter your name:"],
-              },
-              {
-                tag: "input",
-                attrs: {class: "player-name-input", id: "player-name", value: "Player"},
-                children: ["Please enter your name:"],
-              },
-              {
-                tag: "button",
-                attrs: { id: "start-button"},
-                children: ["Start Game"],
-              },
+              "Use the arrow keys or WASD to move your player around the board. press the space bar to drop a bomb.",
             ],
           },
-          {
-            tag: "div",
-            attrs: {},
-            children: [
-              {
-                tag: "h2",
-                attrs: {},
-                children: ["How to play:"],
-              },
-              {
-                tag: "p",
-                attrs: {},
-                children: [
-                  "Use the arrow keys or WASD to move your player around the board. press the space bar to drop a bomb.",
-                ],
-              }
-            ]
-          }
         ],
-      });
+      },
+    ],
+  });
   let welcomeDiv = document.getElementById("welcome-message");
   welcomeDiv.appendChild(startPage);
 }
@@ -69,8 +81,5 @@ if (startButton) {
   startButton.addEventListener("click", function () {
     //window.webSocketConnection = new WebSocket("ws://localhost:80/ws");
     initializeGame();
-    setTimeout(function () {
-      requestAnimationFrame(movePlayer);
-    }, 1000);
   });
 }

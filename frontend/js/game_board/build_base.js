@@ -1,8 +1,7 @@
 // File for building the base grid for the game board
-let playerAmount = 4;
 
 // Function to build the base grid for the game board
-async function buildBaseGrid(gameBoard) {
+async function buildBaseGrid(gameBoard, playerAmount) {
   // Generate CSS for grid template
   const n = gameBoard.length;
   const gridTemplate = `repeat(${n}, 0fr)`;
@@ -107,18 +106,6 @@ async function buildBaseGrid(gameBoard) {
         case 3:
           cell.classList.add("cell", "edge");
           break;
-        case 4:
-          cell.classList.add("cell", `starting-cell-1`);
-          break;
-        case 5:
-          cell.classList.add("cell", `starting-cell-4`);
-          break;
-        case 6:
-          cell.classList.add("cell", `starting-cell-3`);
-          break;
-        case 7:
-          cell.classList.add("cell", `starting-cell-2`);
-          break;
         default:
           cell.classList.add("cell");
           break;
@@ -129,12 +116,32 @@ async function buildBaseGrid(gameBoard) {
     }
   }
 
+  const startcell1 = document.getElementById("cell-1-1");
+  const startcell2 = document.getElementById("cell-17-17");
+  const startcell3 = document.getElementById("cell-1-17");
+  const startcell4 = document.getElementById("cell-17-1");
+
   for (let i = 1; i <= playerAmount; i++) {
     let player = document.createElement("div");
     player.setAttribute("id", `player-${i}`);
     player.classList.add("player");
-    let playerStart = document.getElementsByClassName(`starting-cell-${i}`);
-    let startRect = playerStart[0].getBoundingClientRect();
+    // let playerStart = document.getElementsByClassName(`starting-cell-${i}`);
+    let playerStart;
+    switch (i) {
+      case 1:
+        playerStart = startcell1;
+        break;
+      case 2:
+        playerStart = startcell2;
+        break;
+      case 3:
+        playerStart = startcell3;
+        break;
+      case 4:
+        playerStart = startcell4;
+        break;
+    }
+    let startRect = playerStart.getBoundingClientRect();
     player.style.top = `${startRect.top}px`;
     player.style.left = `${startRect.left}px`;
     document.getElementById("game-board").appendChild(player);

@@ -31,10 +31,10 @@ func GenerateGameBoard() ([19][19]int, []byte, error) {
 	}
 
 	// place players in their starting positions
-	for i := 1; i < 5; i++ {
-		startingPosition := GetStartingPosition(i)
-		gameBoard[startingPosition[0]][startingPosition[1]] = i + 3
-	}
+	// for i := 1; i < 5; i++ {
+	// 	startingPosition := GetStartingPosition(i)
+	// 	gameBoard[startingPosition[0]][startingPosition[1]] = i + 3
+	// }
 	PlayArea = CalculateBoundaries(gameBoard)
 	log.Println(PlayArea)
 
