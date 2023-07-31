@@ -21,9 +21,9 @@ Players will start in the corners of the map to ensure they have space to avoid 
 Destroying a block may release a random power-up on the map. Players can collect these power-ups to gain advantages during the game.
 
 ### Power-ups include:
-Bombs with plus: Increase the number of bombs dropped at a time by 1.
-Bombs with arrow ups: Increase the explosion range from the bomb in four directions by 1 block.
-Speedarrows: Increase movement speed.
+- Bombs with plus: Increase the number of bombs dropped at a time by 1.
+- Bombs with arrow ups: Increase the explosion range from the bomb in four directions by 1 block.
+- Speedarrows: Increase movement speed.
 
 ## Chat
 Implement a chat feature that allows players to communicate with each other during the game.
