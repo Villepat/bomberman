@@ -2,6 +2,7 @@
 let adjustment = 0;
 let width = window.innerWidth;
 
+
 function debounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -125,6 +126,10 @@ export function movePlayer(player) {
         cmessage.classList.add("chat-message");
         cmessage.innerHTML = message.data;
         chatWindow.appendChild(cmessage);
+      } else if (message.type === "gameOver") {
+        console.log("gameOver received");
+        console.log(message.data);
+        alert(message.data.Winner + " has won the game!");
       }
     };
     requestAnimationFrame(animationLoop);
@@ -170,6 +175,11 @@ function updatePlayerPosition(player) {
   //update the players background image based on the direction, player1 is down, playerLeft1 is left, playerRight1 is right, playerUpward1 is up (for player 1)
   let playerImg = document.getElementById(`player-${player.PlayerID}`);
   playerImg.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.png")`;
+
+  //update the moving player when pressing the key with the gif image
+  let playerGif = document.getElementById(`player-${player.PlayerID}`);
+  playerGif.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.gif")`;
+
 
   // Remove all previous direction classes and add the current direction class
   playerxd.classList.remove(

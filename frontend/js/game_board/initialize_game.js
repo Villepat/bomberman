@@ -15,8 +15,10 @@
 import { buildBaseGrid } from "./build_base.js";
 import { movePlayer } from "../physics/movement.js";
 
-let timer = 5; // set to 20 for production
-let timer2 = 5; // set to 10 for production
+
+let timer = 20; // set to 20 for production
+let timer2 = 10; // set to 10 for production
+
 let playersConnected = 0;
 let timerInterval;
 let players = [];
@@ -118,8 +120,13 @@ async function initializeGame() {
       console.log(receivedMessage.playerlist);
       console.log(players);
       updateLobbyDisplay();
-      if (playersConnected === 2) {
+      if (playersConnected === 4) {
         startCountdown();
+      }
+      if (playersConnected === 4) {
+        starting = true;
+        updateLobbyDisplay();
+        finalCountdown();
       }
     } else if (receivedMessage.type === "player-disconnected") {
       console.log("player disconnected");
