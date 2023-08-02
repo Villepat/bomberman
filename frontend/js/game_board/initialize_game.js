@@ -15,7 +15,6 @@
 import { buildBaseGrid } from "./build_base.js";
 import { movePlayer } from "../physics/movement.js";
 
-
 let timer = 20; // set to 20 for production
 let timer2 = 10; // set to 10 for production
 
@@ -120,10 +119,10 @@ async function initializeGame() {
       console.log(receivedMessage.playerlist);
       console.log(players);
       updateLobbyDisplay();
-      if (playersConnected === 4) {
+      if (playersConnected >= 2) {
         startCountdown();
       }
-      if (playersConnected === 4) {
+      if (playersConnected === 2) {
         starting = true;
         updateLobbyDisplay();
         finalCountdown();

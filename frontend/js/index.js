@@ -8,6 +8,19 @@ window.onload = function () {
   if (messageParam === "gameAbandoned") {
     alert("The game was abandoned. Please try again.");
   }
+  // Add event listener to the player name input element
+  let playerNameInput = document.getElementById("player-name");
+  if (playerNameInput) {
+    const MAX_CHARACTER_LIMIT = 14; // Change this to your desired character limit
+
+    playerNameInput.addEventListener("input", function (event) {
+      const inputText = event.target.value;
+      if (inputText.length > MAX_CHARACTER_LIMIT) {
+        // Truncate the input text to the character limit
+        event.target.value = inputText.slice(0, MAX_CHARACTER_LIMIT);
+      }
+    });
+  }
 };
 
 if (window.location.pathname === "/") {
