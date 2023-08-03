@@ -2,7 +2,6 @@
 let adjustment = 0;
 let width = window.innerWidth;
 
-
 function debounce(func, wait) {
   let timeout;
   return function (...args) {
@@ -129,11 +128,35 @@ export function movePlayer(player) {
       } else if (message.type === "gameOver") {
         console.log("gameOver received");
         console.log(message.data);
-        alert(message.data.Winner + " has won the game!");
+
+        const winnerName = message.data.Winner;
+        const modalHTML = `
+          <div id="myModal" class="modal">
+            <div class="modal-content">
+              <p id="winMessage">${winnerName} has won the game!</p>
+              <button id="refreshButton">Go Home</button>
+            </div>
+          </div>
+        `;
+
+        // Append the modal HTML to the body of the document
+        document.body.innerHTML += modalHTML;
+
+        const modal = document.getElementById("myModal");
+        const refreshButton = document.getElementById("refreshButton");
+
+        modal.style.display = "block";
+
+        refreshButton.addEventListener("click", function () {
+          location.reload(); // Refresh the page when the button is clicked
+        });
       }
     };
+
+    // Call requestAnimationFrame to keep the animation loop running
     requestAnimationFrame(animationLoop);
   }
+
   animationLoop();
 }
 
@@ -179,7 +202,6 @@ function updatePlayerPosition(player) {
   //update the moving player when pressing the key with the gif image
   let playerGif = document.getElementById(`player-${player.PlayerID}`);
   playerGif.style.backgroundImage = `url("/static/images/player${player.PlayerID}${direction}.gif")`;
-
 
   // Remove all previous direction classes and add the current direction class
   playerxd.classList.remove(
